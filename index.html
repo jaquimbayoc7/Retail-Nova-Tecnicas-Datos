@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RetailNova · Taller 1</title>
+<meta name="description" content="Taller 1 resuelto: fuentes de datos, ciclo de vida, ETL vs ELT y arquitectura recomendada para RetailNova.">
+<style>
+:root{--bg:#f6f7f9;--surface:#fff;--ink:#14202b;--muted:#5b6b7a;--line:#dfe4ea;--brand:#0f766e;--brand-ink:#fff;--brand-soft:#e3f4f1;--warn:#b45309;--warn-soft:#fdf2e3;--bad:#be123c;--bad-soft:#fde8ee;--ok:#15803d;--side:#0e2a33;--side-ink:#d6e6ea;--star:#d97706}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1419;--surface:#151e25;--ink:#e6edf2;--muted:#93a4b3;--line:#263540;--brand:#2dd4bf;--brand-ink:#04211e;--brand-soft:#10312e;--warn:#fbbf24;--warn-soft:#33270f;--bad:#fb7185;--bad-soft:#3a1722;--ok:#4ade80;--side:#0a1217;--side-ink:#b9ccd6}}
+:root[data-theme=dark]{--bg:#0d1419;--surface:#151e25;--ink:#e6edf2;--muted:#93a4b3;--line:#263540;--brand:#2dd4bf;--brand-ink:#04211e;--brand-soft:#10312e;--warn:#fbbf24;--warn-soft:#33270f;--bad:#fb7185;--bad-soft:#3a1722;--ok:#4ade80;--side:#0a1217;--side-ink:#b9ccd6}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--brand)}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+nav.side{background:var(--side);color:var(--side-ink);position:sticky;top:0;height:100vh;overflow:auto;padding:24px 18px}
+nav.side .brand{font-weight:700;font-size:18px;color:#fff;margin-bottom:2px}
+nav.side .sub{font-size:12px;opacity:.75;margin-bottom:18px}
+nav.side a{display:block;color:var(--side-ink);text-decoration:none;padding:8px 10px;border-radius:8px;font-size:14px}
+nav.side a:hover,nav.side a.on{background:rgba(255,255,255,.1);color:#fff}
+nav.side .grp{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.55;margin:16px 10px 4px}
+.themebtn{margin-top:18px;background:transparent;border:1px solid rgba(255,255,255,.25);color:var(--side-ink);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+main{min-width:0;padding:32px clamp(16px,4vw,48px) 64px;max-width:1180px;width:100%}
+.menu{display:none}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.15;margin:0 0 8px}
+h2{font-size:24px;margin:0 0 6px}
+h3{font-size:18px;margin:24px 0 8px}
+h4{margin:0 0 6px;font-size:15px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(16px,3vw,28px);margin:22px 0}
+section>.eyebrow{color:var(--brand);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.hero{background:linear-gradient(135deg,var(--brand-soft),var(--surface));}
+.muted{color:var(--muted)} .small{font-size:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:24px;color:var(--brand)}
+.tw{overflow-x:auto;margin:12px 0;max-width:100%}
+table.nw td,table.nw th{white-space:nowrap}
+.stack{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:16px 0}
+.stack>div{border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.stack h3{margin-top:0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+thead th{background:var(--bg);font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.pill{padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-es{background:#dbeafe;color:#1e40af} .p-se{background:#fef3c7;color:#92400e} .p-ne{background:#fce7f3;color:#9d174d}
+.star{color:var(--star);font-size:17px}
+.q{font-weight:600}
+figure.diag{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+figure.diag iframe{width:100%;border:0;display:block;background:#fff}
+figcaption{font-size:13px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line)}
+[role=tablist]{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+[role=tab]{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px 16px;border-radius:99px;cursor:pointer;font:inherit;font-size:14px}
+[role=tab][aria-selected=true]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+ol.stages{padding-left:20px} ol.stages li{margin:4px 0}
+.risk{border-radius:12px;padding:12px 16px;border:1px solid var(--line)}
+.risk.q{background:var(--warn-soft)} .risk.s{background:var(--bad-soft)}
+.risk h4{font-weight:700} .risk.q h4{color:var(--warn)} .risk.s h4{color:var(--bad)}
+.risk p{margin:4px 0}
+.vs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.vs>div{border:1px solid var(--line);border-radius:12px;padding:14px}
+.vs h3{margin-top:0}
+.matrix th[scope=row]{font-weight:500;background:transparent;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)}
+.matrix{table-layout:fixed;min-width:640px} .matrix thead th:first-child{width:36%} .matrix thead th{white-space:normal;text-align:center} .matrix thead th:first-child{text-align:left}
+.matrix td.sc{text-align:center;font-weight:700}
+.s1{background:#fde2e4;color:#9f1239} .s2{background:#fdecd2;color:#9a3412} .s3{background:#fdf7cf;color:#713f12} .s4{background:#d9f2e3;color:#14532d} .s5{background:#b8e8cd;color:#14532d}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .s1{background:#4a1d27;color:#fecdd3} :root:not([data-theme=light]) .s2{background:#4a2c10;color:#fed7aa} :root:not([data-theme=light]) .s3{background:#453d0e;color:#fef08a} :root:not([data-theme=light]) .s4{background:#14392a;color:#bbf7d0} :root:not([data-theme=light]) .s5{background:#12503a;color:#bbf7d0}}
+:root[data-theme=dark] .s1{background:#4a1d27;color:#fecdd3} :root[data-theme=dark] .s2{background:#4a2c10;color:#fed7aa} :root[data-theme=dark] .s3{background:#453d0e;color:#fef08a} :root[data-theme=dark] .s4{background:#14392a;color:#bbf7d0} :root[data-theme=dark] .s5{background:#12503a;color:#bbf7d0}
+.matrix td.best{outline:2px solid var(--brand);outline-offset:-2px}
+.matrix tr.totrow th,.matrix tr.totrow td{border-top:2px solid var(--ink);font-weight:700}
+.matrix td.tot{text-align:center;font-size:17px} .matrix td.win{background:var(--brand);color:var(--brand-ink)}
+.winner{margin:6px 0} .winner strong{color:var(--brand)}
+.moment{border-top:1px dashed var(--line);margin-top:18px;padding-top:6px} .moment:first-of-type{border:0}
+.hoja dt{font-weight:700;margin-top:14px;color:var(--brand)} .hoja dd{margin:4px 0 0}
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.timeline .card b{color:var(--brand)}
+footer{color:var(--muted);font-size:13px;margin-top:30px}
+@media (max-width:900px){
+ .layout{grid-template-columns:minmax(0,1fr)}
+ nav.side{position:fixed;inset:0 auto 0 0;width:260px;z-index:20;transform:translateX(-100%);transition:transform .2s}
+ nav.side.open{transform:none}
+ .menu{display:block;position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px}
+ .menu button{background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+ .grid2,.vs,.timeline{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} nav.side{transition:none}}
+</style>
+</head>
+<body>
+<div class="menu"><button id="menubtn" aria-expanded="false" aria-controls="side">☰ Menú</button></div>
+<div class="layout">
+<nav class="side" id="side" aria-label="Secciones">
+  <div class="brand">RetailNova</div>
+  <div class="sub">Taller 1 · Semana 1<br>Comité de arquitectura</div>
+  <a href="#inicio">Resumen</a>
+  <div class="grp">Actividades</div>
+  <a href="#act1">1 · Fuentes de datos</a>
+  <a href="#act2">2 · Recorrido del dato</a>
+  <a href="#act3">3 · ETL vs ELT</a>
+  <a href="#act4">4 · Matrices de decisión</a>
+  <a href="#act5">5 · Decisión final</a>
+  <div class="grp">Extras</div>
+  <a href="#hibrida">Ingesta híbrida</a>
+  <a href="#entregables">Entregables</a>
+  <button class="themebtn" id="themebtn" type="button">Cambiar tema</button>
+</nav>
+<main>
+<section class="hero" id="inicio">
+  <div class="eyebrow">Técnicas Avanzadas de Gestión de Datos · Semana 1</div>
+  <h1>Cómo debería organizar RetailNova sus datos para crecer</h1>
+  <p>Recomendación del comité de arquitectura: <strong>empezar con el Data Warehouse que ya tiene, pasar a un Lakehouse con ingesta híbrida en el Año 2 y evolucionar hacia un Data Mesh cuando la empresa tenga el tamaño para operarlo</strong>.</p>
+  <p class="muted small">Maestría en Computación para Desarrollo de Apps Inteligentes<br><strong>Integrantes:</strong> Julian Andres Quimbayo Castro (rol simulado: Arquitecto de Datos)<br><strong>Presentado al Docente:</strong> Ing. Alexander Yela Reyes</p>
+  <div class="kpis">
+    <div class="kpi"><b>12</b>tiendas en el Valle del Cauca</div>
+    <div class="kpi"><b>15</b>fuentes de datos clasificadas</div>
+    <div class="kpi"><b>3</b>preguntas de negocio recorridas</div>
+    <div class="kpi"><b>3</b>momentos evaluados</div>
+  </div>
+  <figure class="diag"><iframe src="diagramas/d1-actual.html" title="Punto de partida: RetailNova hoy" loading="lazy" style="height:790px"></iframe><figcaption>Punto de partida: RetailNova hoy · <a href="diagramas/d1-actual.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+  <p class="small muted">Hoy un ETL nocturno alimenta un warehouse y Power BI muestra las ventas del día anterior. Audios, reseñas, PDF y sensores no se analizan, y cada área mantiene su propio Excel.</p>
+</section>
+
+<section id="act1">
+  <div class="eyebrow">Actividad 1</div>
+  <h2>¿Qué datos tiene RetailNova?</h2>
+  <p>Cada fuente se clasificó por su forma y por cómo llegaría a la plataforma. Las tres estrellas marcan las fuentes de mayor valor.</p>
+  <div class="tw"><table><thead><tr><th>#</th><th>Fuente</th><th>Forma</th><th>Ingesta principal</th><th>Complemento</th></tr></thead><tbody><tr><td>1</td><td>Tickets de venta del POS <span class=star title=Estrella>★</span></td><td><span class="pill p-es">Estructurado</span></td><td>Streaming (o micro-batch de 5–15 min)</td><td class="muted">Batch nocturno de conciliación</td></tr><tr><td>2</td><td>Inventario del ERP</td><td><span class="pill p-es">Estructurado</span></td><td>CDC</td><td class="muted">Snapshot semanal para cuadrar</td></tr><tr><td>3</td><td>Fotos del catálogo en línea</td><td><span class="pill p-ne">No estructurado</span></td><td>Batch (al cargar)</td><td class="muted">—</td></tr><tr><td>4</td><td>Reseñas y calificaciones (JSON) <span class=star title=Estrella>★</span></td><td><span class="pill p-se">Semiestructurado</span></td><td>Micro-batch por hora</td><td class="muted">—</td></tr><tr><td>5</td><td>Lecturas de temperatura de neveras <span class=star title=Estrella>★</span></td><td><span class="pill p-se">Semiestructurado</span></td><td>Streaming</td><td class="muted">Archivo batch en el lake para histórico</td></tr><tr><td>6</td><td>Audios del call center</td><td><span class="pill p-ne">No estructurado</span></td><td>Batch semanal</td><td class="muted">—</td></tr><tr><td>7</td><td>Facturas de proveedores en PDF</td><td><span class="pill p-ne">No estructurado</span></td><td>Batch diario (con OCR)</td><td class="muted">—</td></tr><tr><td>8</td><td>Clics y navegación en la tienda web</td><td><span class="pill p-se">Semiestructurado</span></td><td>Streaming</td><td class="muted">Batch para sesionizar y agregar</td></tr><tr><td>9</td><td>Clientes del programa de puntos</td><td><span class="pill p-es">Estructurado</span></td><td>CDC</td><td class="muted">—</td></tr><tr><td>10</td><td>Correos de reclamos</td><td><span class="pill p-ne">No estructurado</span></td><td>Batch / micro-batch</td><td class="muted">—</td></tr><tr><td>11</td><td>Video de cámaras de seguridad</td><td><span class="pill p-ne">No estructurado</span></td><td>Batch de extractos o eventos</td><td class="muted">—</td></tr><tr><td>12</td><td>Excel de metas comerciales</td><td><span class="pill p-es">Estructurado</span></td><td>Batch mensual</td><td class="muted">—</td></tr><tr><td>13</td><td>Logs del servidor web</td><td><span class="pill p-se">Semiestructurado</span></td><td>Streaming (o batch por archivo)</td><td class="muted">—</td></tr><tr><td>14</td><td>Menciones de la marca en redes (API)</td><td><span class="pill p-se">Semiestructurado</span></td><td>Batch (consulta periódica de API)</td><td class="muted">—</td></tr><tr><td>15</td><td>Precios y promociones vigentes</td><td><span class="pill p-es">Estructurado</span></td><td>CDC</td><td class="muted">—</td></tr></tbody></table></div>
+  <h3>Las tres estrellas</h3>
+  <ul><li><strong>POS (tarjeta 1).</strong> Es la fuente central: responde la pregunta A (qué se agota) y acorta el retraso de un día de los gerentes.</li><li><strong>Sensores de neveras (tarjeta 5).</strong> Responde la pregunta B y evita la pérdida de mercancía refrigerada; su valor se pierde si la alerta llega al día siguiente.</li><li><strong>Reseñas de la tienda web (tarjeta 4).</strong> Es la fuente más directa para la pregunta C sobre la marca Nova y alimentará el motor de recomendaciones.</li></ul>
+  <h3>Cómo llega cada tipo de dato</h3>
+  <div class="grid4"><div class="card"><h4>CDC</h4><p class="muted small">ERP inventario, clientes de Puntos Nova, precios y promociones</p><p>Son bases relacionales: capturar cambios evita cargarlas completas cada noche.</p></div><div class="card"><h4>Streaming</h4><p class="muted small">POS, sensores, clics, logs</p><p>El valor está en actuar en minutos o segundos (quiebre de stock, nevera dañada).</p></div><div class="card"><h4>Micro-batch</h4><p class="muted small">Reseñas web</p><p>El tiempo real no aporta; cada hora basta.</p></div><div class="card"><h4>Batch</h4><p class="muted small">Fotos, audios, PDF, correos, Excel de metas, redes, video</p><p>Llegan por lotes o su valor no depende de la inmediatez.</p></div></div>
+  <p><strong>¿Qué tarjeta costó más?</strong> Las tarjetas 7 (facturas PDF) y 10 (correos de reclamos) fueron las más difíciles. Un PDF o un correo traen algo de estructura (campos, encabezados), pero su contenido útil es texto libre, así que los clasificamos como no estructurados. El Excel de metas (12) también dudó: es tabular, pero llega por correo y a mano, por eso lo tratamos como estructurado con ingesta batch manual.</p>
+</section>
+
+<section id="act2">
+  <div class="eyebrow">Actividad 2</div>
+  <h2>El recorrido de un dato</h2>
+  <p>Para cada pregunta se trazaron las cinco etapas del ciclo de vida (generación, ingesta, almacenamiento, transformación y servir) y se marcó un riesgo de calidad y uno de seguridad en la etapa donde se controla.</p>
+  <div role="tablist" aria-label="Preguntas de negocio"><button role="tab" aria-selected="true" data-tab="recA">Pregunta A</button><button role="tab" aria-selected="false" data-tab="recB">Pregunta B</button><button role="tab" aria-selected="false" data-tab="recC">Pregunta C</button></div>
+  <div role="tabpanel" id="recA" >
+  <p class="q">¿Qué producto se agota primero en cada tienda?</p>
+  <figure class="diag"><iframe src="diagramas/d2-recorrido-a.html" title="Recorrido A" loading="lazy" style="height:570px"></iframe><figcaption>Recorrido A · <a href="diagramas/d2-recorrido-a.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+  <ol class="stages"><li><strong>Generación.</strong> Cada caja del POS genera un ticket por línea; el ERP mantiene el stock por tienda.</li><li><strong>Ingesta.</strong> Los tickets entran por streaming (ticket a ticket); los cambios de stock entran por CDC sin cargar al ERP.</li><li><strong>Almacenamiento.</strong> Todo aterriza crudo y sin borrar en la capa Bronce del lakehouse.</li><li><strong>Transformación.</strong> Se calcula stock frente a ventas por hora y se proyecta el quiebre por producto y tienda (ELT).</li><li><strong>Servir.</strong> El gerente recibe una alerta de producto por agotarse y el comprador ve el ranking.</li></ol>
+  <div class="grid2">
+    <div class="risk q"><h4>Riesgo de calidad · controlado en Transformación</h4><p>Tickets duplicados o con cantidad negativa distorsionan el quiebre.</p><p class="muted"><strong>Control:</strong> Deduplicar por ticket y producto y validar cantidad &gt; 0.</p></div>
+    <div class="risk s"><h4>Riesgo de seguridad · controlado en Almacenamiento</h4><p>El ticket trae el documento del cliente (dato personal).</p><p class="muted"><strong>Control:</strong> Enmascarar o seudonimizar al aterrizar y limitar el acceso.</p></div>
+  </div></div><div role="tabpanel" id="recB" hidden>
+  <p class="q">¿Se están dañando productos por fallas en las neveras?</p>
+  <figure class="diag"><iframe src="diagramas/d3-recorrido-b.html" title="Recorrido B" loading="lazy" style="height:625px"></iframe><figcaption>Recorrido B · <a href="diagramas/d3-recorrido-b.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+  <ol class="stages"><li><strong>Generación.</strong> Los sensores de las neveras envían temperatura cada 30 segundos.</li><li><strong>Ingesta.</strong> Streaming en tiempo real para las lecturas; CDC para el stock refrigerado del ERP.</li><li><strong>Almacenamiento.</strong> Serie de tiempo para lecturas recientes y archivo crudo para el histórico; inventario en Bronce.</li><li><strong>Transformación.</strong> Regla de umbral con ventana móvil (temperatura alta durante N minutos) y cálculo del valor de mercancía en riesgo.</li><li><strong>Servir.</strong> Alerta por SMS o app al encargado en segundos y tablero de mermas con causa y costo.</li></ol>
+  <div class="grid2">
+    <div class="risk q"><h4>Riesgo de calidad · controlado en Transformación</h4><p>Lecturas faltantes o un sensor descalibrado generan falsas alarmas o ceguera.</p><p class="muted"><strong>Control:</strong> Validar completitud de lecturas y calibración antes de aplicar la regla.</p></div>
+    <div class="risk s"><h4>Riesgo de seguridad · controlado en Ingesta</h4><p>Un sensor sin autenticar puede inyectar lecturas falsas.</p><p class="muted"><strong>Control:</strong> TLS y credenciales por dispositivo en el punto de entrada.</p></div>
+  </div></div><div role="tabpanel" id="recC" hidden>
+  <p class="q">¿Qué opinan los clientes de la nueva marca propia Nova?</p>
+  <figure class="diag"><iframe src="diagramas/d4-recorrido-c.html" title="Recorrido C" loading="lazy" style="height:685px"></iframe><figcaption>Recorrido C · <a href="diagramas/d4-recorrido-c.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+  <ol class="stages"><li><strong>Generación.</strong> Los clientes escriben reseñas en la web, mencionan la marca en redes y envían reclamos por correo.</li><li><strong>Ingesta.</strong> Reseñas en micro-batch horario; redes por consulta periódica de API; correos por carga batch diaria.</li><li><strong>Almacenamiento.</strong> Todo el texto aterriza crudo en Bronce, sin perder el original.</li><li><strong>Transformación.</strong> Se filtra lo referente a Nova y se analiza el sentimiento con procesamiento de lenguaje (NLP).</li><li><strong>Servir.</strong> Mercadeo y producto consultan un tablero de opinión por producto Nova.</li></ol>
+  <div class="grid2">
+    <div class="risk q"><h4>Riesgo de calidad · controlado en Transformación</h4><p>Reseñas falsas o repetidas sesgan el sentimiento.</p><p class="muted"><strong>Control:</strong> Filtrar duplicados y cuentas sospechosas antes del análisis.</p></div>
+    <div class="risk s"><h4>Riesgo de seguridad · controlado en Almacenamiento</h4><p>Reseñas y menciones contienen datos personales de usuarios.</p><p class="muted"><strong>Control:</strong> Anonimizar al aterrizar y respetar los límites de uso de cada API.</p></div>
+  </div></div>
+  <p><strong>¿Cuál fue la más difícil?</strong> La pregunta C fue la más difícil. Las A y B se resuelven con números (stock, ventas, temperatura) y reglas claras. La C parte de texto libre, mezcla tres fuentes con ritmos distintos de llegada y exige análisis de lenguaje para convertir opiniones en una métrica, además de más cuidado con datos personales.</p>
+</section>
+
+<section id="act3">
+  <div class="eyebrow">Actividad 3</div>
+  <h2>ETL frente a ELT con lápiz y papel</h2>
+  <p>Las 10 filas crudas del POS (1 y 2 de octubre) tienen 9 problemas distintos. Estas son las filas tal como llegaron:</p>
+  <div class="tw"><table class="nw"><thead><tr><th>Ticket</th><th>Fecha</th><th>Tienda</th><th>Producto</th><th>Cant.</th><th>Precio unit.</th><th>Pago</th><th>Cajero</th></tr></thead><tbody><tr><td>T-1001</td><td>2026-10-01</td><td>Cali Norte</td><td>Arroz 1 kg</td><td>2</td><td>4.200</td><td>Nequi</td><td>C-07</td></tr><tr><td>T-1002</td><td>01/10/2026</td><td>CALI NTE</td><td>Leche 1 L</td><td>3</td><td>$3.900</td><td>Efectivo</td><td>C-07</td></tr><tr><td>T-1003</td><td>2026-10-01</td><td>Palmira</td><td>Aceite 900 ml</td><td>1</td><td>12.500</td><td>Tarjeta débito</td><td>C-12</td></tr><tr><td>T-1003</td><td>2026-10-01</td><td>Palmira</td><td>Aceite 900 ml</td><td>1</td><td>12.500</td><td>Tarjeta débito</td><td>C-12</td></tr><tr><td>T-1004</td><td>Oct 1, 2026</td><td>Jamundí</td><td>Detergente 2 kg</td><td>1</td><td></td><td>Nequi</td><td>C-03</td></tr><tr><td>T-1005</td><td>2026-10-01</td><td>Cali Sur</td><td>Huevos x30</td><td>-1</td><td>15.800</td><td>Tarjeta crédito</td><td>C-05</td></tr><tr><td>T-1006</td><td>2026-10-02</td><td>Cali Norte</td><td>Café 500 g</td><td>2</td><td>18.900</td><td>Daviplata</td><td>C-07</td></tr><tr><td>T-1007</td><td>2026/10/02</td><td>cali sur</td><td>Pan tajado</td><td>1</td><td>6.300</td><td>Efectivo</td><td></td></tr><tr><td>T-1008</td><td>2026-10-02</td><td>Tienda 13</td><td>Azúcar 1 kg</td><td>4</td><td>3.600</td><td>Nequi</td><td>C-09</td></tr><tr><td>T-1009</td><td>2026-10-02</td><td>Palmira</td><td>Gaseosa 1,5 L</td><td>200</td><td>5.500</td><td>Tarjeta crédito</td><td>C-12</td></tr></tbody></table></div>
+  <h3>Problemas encontrados y reglas de limpieza</h3>
+  <div class="tw"><table class=""><thead><tr><th>#</th><th>Problema</th><th>Filas</th><th>Regla de limpieza</th></tr></thead><tbody><tr><td>1</td><td>Fechas en cuatro formatos distintos</td><td>T-1002, T-1004, T-1007</td><td>Convertir todo a ISO AAAA-MM-DD. Se asume día/mes (formato colombiano) en 01/10/2026.</td></tr><tr><td>2</td><td>Nombres de tienda inconsistentes</td><td>T-1002 (CALI NTE), T-1007 (cali sur)</td><td>Pasar a un catálogo oficial de 12 tiendas con tabla de alias (CALI NTE → Cali Norte).</td></tr><tr><td>3</td><td>Tienda que no existe</td><td>T-1008 (Tienda 13)</td><td>RetailNova tiene 12 tiendas: rechazar la fila o enviarla a cuarentena para revisión.</td></tr><tr><td>4</td><td>Fila duplicada</td><td>T-1003 (dos veces)</td><td>Deduplicar por ticket + producto + cantidad + hora; conservar una sola.</td></tr><tr><td>5</td><td>Precio faltante</td><td>T-1004</td><td>No inventar el valor: marcar nulo y, si se puede, completar desde la tabla de precios vigentes.</td></tr><tr><td>6</td><td>Cantidad negativa</td><td>T-1005 (-1)</td><td>Tratarla como devolución o anulación, nunca como venta negativa; validar con el ticket original.</td></tr><tr><td>7</td><td>Cantidad atípica</td><td>T-1009 (200 gaseosas)</td><td>Marcar valores fuera de rango (por ejemplo &gt; 50 por línea) como posible error de digitación y revisar.</td></tr><tr><td>8</td><td>Cajero vacío</td><td>T-1007</td><td>Permitir nulo y registrar «sin cajero» para auditar la caja.</td></tr><tr><td>9</td><td>Formato de precio con símbolo y separador de miles</td><td>T-1002 ($3.900) y el resto (4.200)</td><td>Quitar $ y puntos y guardar el precio como entero en pesos.</td></tr></tbody></table></div>
+  <figure class="diag"><iframe src="diagramas/d5-etl-vs-elt.html" title="ETL frente a ELT sobre las 10 filas del POS" loading="lazy" style="height:685px"></iframe><figcaption>ETL frente a ELT sobre las 10 filas del POS · <a href="diagramas/d5-etl-vs-elt.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+  <div class="stack">
+    <div><h3>Equipo ETL: transforma antes de cargar</h3>
+      <p class="small muted">Esquema fijo, solo lo necesario para ventas diarias por tienda. Tipos de cada columna:</p>
+      <div class="tw"><table class="nw"><thead><tr><th>fecha</th><th>tienda</th><th>ticket</th><th>producto</th><th>cantidad</th><th>precio_unit</th><th>valor_linea</th></tr></thead><tbody><tr><td>DATE</td><td>VARCHAR (catálogo de 12)</td><td>VARCHAR</td><td>VARCHAR</td><td>INT &gt; 0</td><td>INT (COP)</td><td>INT (COP)</td></tr></tbody></table></div><p><strong>Tabla limpia final</strong></p><div class="tw"><table class="nw"><thead><tr><th>fecha</th><th>tienda</th><th>ticket</th><th>producto</th><th>cantidad</th><th>precio_unit</th><th>valor_linea</th></tr></thead><tbody><tr><td>2026-10-01</td><td>Cali Norte</td><td>T-1001</td><td>Arroz 1 kg</td><td>2</td><td>4200</td><td>8400</td></tr><tr><td>2026-10-01</td><td>Cali Norte</td><td>T-1002</td><td>Leche 1 L</td><td>3</td><td>3900</td><td>11700</td></tr><tr><td>2026-10-01</td><td>Palmira</td><td>T-1003</td><td>Aceite 900 ml</td><td>1</td><td>12500</td><td>12500</td></tr><tr><td>2026-10-02</td><td>Cali Norte</td><td>T-1006</td><td>Café 500 g</td><td>2</td><td>18900</td><td>37800</td></tr><tr><td>2026-10-02</td><td>Cali Sur</td><td>T-1007</td><td>Pan tajado</td><td>1</td><td>6300</td><td>6300</td></tr></tbody></table></div>
+      <p><strong>Descartado:</strong></p><ul class="small"><li><strong>T-1003 (copia)</strong>: duplicado</li><li><strong>T-1004</strong>: precio vacío</li><li><strong>T-1005</strong>: cantidad negativa</li><li><strong>T-1008</strong>: tienda inexistente</li><li><strong>T-1009</strong>: cantidad atípica</li><li><strong>Columnas método_pago y cajero</strong>: no caben en el esquema del reporte diario</li></ul>
+      <p><strong>Reporte diario resultante</strong></p><div class="tw"><table class=""><thead><tr><th>Fecha</th><th>Tienda</th><th>Ventas (COP)</th></tr></thead><tbody><tr><td>2026-10-01</td><td>Cali Norte</td><td>20.100</td></tr><tr><td>2026-10-01</td><td>Palmira</td><td>12.500</td></tr><tr><td>2026-10-02</td><td>Cali Norte</td><td>37.800</td></tr><tr><td>2026-10-02</td><td>Cali Sur</td><td>6.300</td></tr></tbody></table></div></div>
+    <div><h3>Equipo ELT: carga primero, transforma después</h3>
+      <p class="small muted">Se guardan las 10 filas intactas y luego se construye una tabla limpia con estado.</p>
+      <div class="tw"><table class="nw"><thead><tr><th>Ticket</th><th>Fecha</th><th>Tienda</th><th>Producto</th><th>Cant.</th><th>Precio</th><th>Valor</th><th>Pago</th><th>Cajero</th><th>Estado</th></tr></thead><tbody><tr><td>T-1001</td><td>2026-10-01</td><td>Cali Norte</td><td>Arroz 1 kg</td><td>2</td><td>4200</td><td>8400</td><td>Nequi</td><td>C-07</td><td>válido</td></tr><tr><td>T-1002</td><td>2026-10-01</td><td>Cali Norte</td><td>Leche 1 L</td><td>3</td><td>3900</td><td>11700</td><td>Efectivo</td><td>C-07</td><td>válido</td></tr><tr><td>T-1003</td><td>2026-10-01</td><td>Palmira</td><td>Aceite 900 ml</td><td>1</td><td>12500</td><td>12500</td><td>Tarjeta débito</td><td>C-12</td><td>válido</td></tr><tr><td>T-1004</td><td>2026-10-01</td><td>Jamundí</td><td>Detergente 2 kg</td><td>1</td><td>—</td><td>—</td><td>Nequi</td><td>C-03</td><td>precio pendiente</td></tr><tr><td>T-1005</td><td>2026-10-01</td><td>Cali Sur</td><td>Huevos x30</td><td>-1</td><td>15800</td><td>-15800</td><td>Tarjeta crédito</td><td>C-05</td><td>devolución</td></tr><tr><td>T-1006</td><td>2026-10-02</td><td>Cali Norte</td><td>Café 500 g</td><td>2</td><td>18900</td><td>37800</td><td>Daviplata</td><td>C-07</td><td>válido</td></tr><tr><td>T-1007</td><td>2026-10-02</td><td>Cali Sur</td><td>Pan tajado</td><td>1</td><td>6300</td><td>6300</td><td>Efectivo</td><td>sin cajero</td><td>válido</td></tr><tr><td>T-1008</td><td>2026-10-02</td><td>Tienda 13 (?)</td><td>Azúcar 1 kg</td><td>4</td><td>3600</td><td>14400</td><td>Nequi</td><td>C-09</td><td>cuarentena</td></tr><tr><td>T-1009</td><td>2026-10-02</td><td>Palmira</td><td>Gaseosa 1,5 L</td><td>200</td><td>5500</td><td>1100000</td><td>Tarjeta crédito</td><td>C-12</td><td>revisar</td></tr></tbody></table></div>
+      <p>El mismo reporte diario sale de las filas en estado <em>válido</em>, y nada se perdió.</p></div>
+  </div>
+  <h3>Respuesta al requerimiento nuevo</h3>
+  <p>Supuesto del taller (la guía no lo define): la gerencia pide ventas por método de pago y por cajero, para vigilar el efectivo en caja y las devoluciones.</p>
+  <div class="grid2"><div class="tw"><table class=""><thead><tr><th>Método de pago</th><th>Ventas válidas (COP)</th></tr></thead><tbody><tr><td>Efectivo</td><td>18.000</td></tr><tr><td>Daviplata</td><td>37.800</td></tr><tr><td>Tarjeta débito</td><td>12.500</td></tr><tr><td>Nequi</td><td>8.400</td></tr></tbody></table></div><div class="tw"><table class=""><thead><tr><th>Cajero</th><th>Ventas válidas (COP)</th></tr></thead><tbody><tr><td>C-07</td><td>57.900</td></tr><tr><td>C-12</td><td>12.500</td></tr><tr><td>sin cajero</td><td>6.300</td></tr></tbody></table></div></div>
+  <div class="vs"><div><h4>ETL</h4><p>Equipo ETL: no pudo responderlo. Su esquema se diseñó solo para ventas diarias por tienda, así que método de pago y cajero se descartaron antes de cargar y las devoluciones se rechazaron. Para responder habría que cambiar el esquema y volver a extraer los datos del POS.</p></div><div><h4>ELT</h4><p>Equipo ELT: sí pudo responderlo. Conservó las 10 filas crudas, así que bastó con una nueva transformación SQL sobre la copia, sin volver al POS. Además pudo mostrar la devolución de T-1005, que el ETL había descartado.</p></div></div>
+  <p><strong>Lección:</strong> ETL (schema-on-write) da un destino limpio y barato de consultar, pero decide el esquema antes de conocer las preguntas futuras. ELT (schema-on-read) guarda primero y transforma después: más flexible y auditable, a cambio de más almacenamiento y gobierno sobre la capa cruda.</p>
+</section>
+
+<section id="act4">
+  <div class="eyebrow">Actividad 4</div>
+  <h2>El comité decide: matrices de decisión</h2>
+  <p>Cada arquitectura se calificó de 1 (muy mal) a 5 (muy bien) en siete criterios, para tres momentos de la empresa. El borde marca la mejor nota de cada criterio.</p>
+  <div class="moment"><h3>Hoy</h3><p class="muted">12 tiendas, solo venta física, 4 personas en datos, reportes de ventas para la gerencia.</p><div class="tw"><table class="matrix"><thead><tr><th>Criterio</th><th>Data Warehouse</th><th>Data Lake</th><th>Lakehouse</th><th>Data Mesh</th></tr></thead><tbody><tr><th scope='row'>Tipos de dato que necesita la empresa</th><td class="sc s4">4</td><td class="sc s5 best">5</td><td class="sc s5 best">5</td><td class="sc s4">4</td></tr><tr><th scope='row'>Reportes y BI confiables</th><td class="sc s5 best">5</td><td class="sc s2">2</td><td class="sc s4">4</td><td class="sc s3">3</td></tr><tr><th scope='row'>Soporte para machine learning</th><td class="sc s3">3</td><td class="sc s4 best">4</td><td class="sc s4 best">4</td><td class="sc s3">3</td></tr><tr><th scope='row'>Gobierno y calidad del dato</th><td class="sc s5 best">5</td><td class="sc s2">2</td><td class="sc s4">4</td><td class="sc s2">2</td></tr><tr><th scope='row'>Costo de almacenamiento y cómputo</th><td class="sc s4 best">4</td><td class="sc s4 best">4</td><td class="sc s3">3</td><td class="sc s1">1</td></tr><tr><th scope='row'>Tamaño del equipo que puede operarla</th><td class="sc s5 best">5</td><td class="sc s3">3</td><td class="sc s3">3</td><td class="sc s1">1</td></tr><tr><th scope='row'>Autonomía de las áreas de negocio</th><td class="sc s2">2</td><td class="sc s3">3</td><td class="sc s3">3</td><td class="sc s5 best">5</td></tr><tr class='totrow'><th scope='row'>Total</th><td class="tot win">28</td><td class="tot">23</td><td class="tot">26</td><td class="tot">19</td></tr></tbody></table></div><p class="winner">Arquitectura ganadora: <strong>Data Warehouse</strong> (28 puntos)</p><ul class="small"><li>Casi todo es estructurado: el DW cubre la necesidad (4).</li><li>BI y gobierno son lo que más pesa y el DW es lo más maduro (5).</li><li>Un equipo de 4 no puede operar un mesh (1) ni sostener un lake sin gobierno (3).</li></ul></div><div class="moment"><h3>Año 2</h3><p class="muted">Tienda en línea en marcha, clickstream web, motor de recomendaciones y sensores en todas las neveras.</p><div class="tw"><table class="matrix"><thead><tr><th>Criterio</th><th>Data Warehouse</th><th>Data Lake</th><th>Lakehouse</th><th>Data Mesh</th></tr></thead><tbody><tr><th scope='row'>Tipos de dato que necesita la empresa</th><td class="sc s2">2</td><td class="sc s5 best">5</td><td class="sc s5 best">5</td><td class="sc s4">4</td></tr><tr><th scope='row'>Reportes y BI confiables</th><td class="sc s5 best">5</td><td class="sc s2">2</td><td class="sc s4">4</td><td class="sc s3">3</td></tr><tr><th scope='row'>Soporte para machine learning</th><td class="sc s2">2</td><td class="sc s5 best">5</td><td class="sc s5 best">5</td><td class="sc s4">4</td></tr><tr><th scope='row'>Gobierno y calidad del dato</th><td class="sc s4 best">4</td><td class="sc s2">2</td><td class="sc s4 best">4</td><td class="sc s3">3</td></tr><tr><th scope='row'>Costo de almacenamiento y cómputo</th><td class="sc s3">3</td><td class="sc s5 best">5</td><td class="sc s4">4</td><td class="sc s2">2</td></tr><tr><th scope='row'>Tamaño del equipo que puede operarla</th><td class="sc s4 best">4</td><td class="sc s2">2</td><td class="sc s3">3</td><td class="sc s1">1</td></tr><tr><th scope='row'>Autonomía de las áreas de negocio</th><td class="sc s2">2</td><td class="sc s3">3</td><td class="sc s3">3</td><td class="sc s5 best">5</td></tr><tr class='totrow'><th scope='row'>Total</th><td class="tot">22</td><td class="tot">24</td><td class="tot win">28</td><td class="tot">22</td></tr></tbody></table></div><p class="winner">Arquitectura ganadora: <strong>Lakehouse</strong> (28 puntos)</p><ul class="small"><li>Aparecen JSON, clics y series de tiempo: el DW cae en tipos de dato y ML (2).</li><li>El Lakehouse conserva BI confiable (4) y suma ML (5) sobre un solo almacenamiento.</li><li>El Lake puro pierde en gobierno y BI; el Mesh aún exige más gente de la que hay.</li></ul></div><div class="moment"><h3>Año 5</h3><p class="muted">Tres países, 200 personas en tecnología y áreas de ventas, logística y mercadeo que piden autonomía.</p><div class="tw"><table class="matrix"><thead><tr><th>Criterio</th><th>Data Warehouse</th><th>Data Lake</th><th>Lakehouse</th><th>Data Mesh</th></tr></thead><tbody><tr><th scope='row'>Tipos de dato que necesita la empresa</th><td class="sc s2">2</td><td class="sc s5 best">5</td><td class="sc s5 best">5</td><td class="sc s5 best">5</td></tr><tr><th scope='row'>Reportes y BI confiables</th><td class="sc s4 best">4</td><td class="sc s2">2</td><td class="sc s4 best">4</td><td class="sc s4 best">4</td></tr><tr><th scope='row'>Soporte para machine learning</th><td class="sc s2">2</td><td class="sc s4">4</td><td class="sc s5 best">5</td><td class="sc s4">4</td></tr><tr><th scope='row'>Gobierno y calidad del dato</th><td class="sc s3">3</td><td class="sc s1">1</td><td class="sc s4 best">4</td><td class="sc s4 best">4</td></tr><tr><th scope='row'>Costo de almacenamiento y cómputo</th><td class="sc s2">2</td><td class="sc s4 best">4</td><td class="sc s3">3</td><td class="sc s3">3</td></tr><tr><th scope='row'>Tamaño del equipo que puede operarla</th><td class="sc s3">3</td><td class="sc s3">3</td><td class="sc s4">4</td><td class="sc s5 best">5</td></tr><tr><th scope='row'>Autonomía de las áreas de negocio</th><td class="sc s1">1</td><td class="sc s2">2</td><td class="sc s3">3</td><td class="sc s5 best">5</td></tr><tr class='totrow'><th scope='row'>Total</th><td class="tot">17</td><td class="tot">21</td><td class="tot">28</td><td class="tot win">30</td></tr></tbody></table></div><p class="winner">Arquitectura ganadora: <strong>Data Mesh</strong> (30 puntos)</p><ul class="small"><li>Con 200 personas el equipo ya puede operar dominios (5) y la autonomía pesa (5).</li><li>Un DW central se vuelve cuello de botella (autonomía 1).</li><li>El Mesh gana por poco y se apoya en el lakehouse como plataforma común.</li></ul></div>
+  <h3>¿Ganó la misma arquitectura?</h3>
+  <p>No. Ganó el Data Warehouse hoy, el Lakehouse en el Año 2 y el Data Mesh en el Año 5. Cambiaron tres cosas: los tipos de dato (de ventas tabulares a clics, sensores y texto), el machine learning que antes no existía, y el tamaño del equipo con la autonomía que piden las áreas.</p>
+</section>
+
+<section id="act5">
+  <div class="eyebrow">Actividad 5</div>
+  <h2>Hoja de decisión de arquitectura · Año 2</h2>
+  <figure class="diag"><iframe src="diagramas/d6-anio2-hibrida.html" title="Arquitectura recomendada para el Año 2" loading="lazy" style="height:790px"></iframe><figcaption>Arquitectura recomendada para el Año 2 · <a href="diagramas/d6-anio2-hibrida.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+  <dl class="hoja">
+    <dt>1. Contexto</dt><dd>Con la tienda en línea, el clickstream, los sensores en todas las neveras y el motor de recomendaciones, RetailNova necesita juntar datos tabulares, JSON y series de tiempo, y servir BI confiable y ML desde un solo lugar con un equipo todavía pequeño.</dd>
+    <dt>2. Decisión</dt><dd><strong>Lakehouse con ingesta híbrida: ruta caliente (streaming y CDC) y ruta fría (batch), sobre un único almacenamiento crudo (bronce) con capas plata y oro.</strong></dd>
+    <dt>3. Alternativas descartadas</dt><dd><ul><li><strong>Data Warehouse.</strong> No maneja bien JSON, clics ni series de tiempo, y obligaría a duplicar datos para ML.</li><li><strong>Data Lake puro.</strong> Daría flexibilidad y bajo costo, pero sin gobierno ni BI confiable se vuelve un pantano de datos.</li><li><strong>Data Mesh.</strong> Exige equipos de dominio y madurez que RetailNova aún no tiene; sería prematuro con un equipo pequeño.</li></ul></dd>
+    <dt>4. Lo que sacrificamos</dt><dd><ul><li>La simplicidad del warehouse: hay más piezas que operar (broker, CDC, capas).</li><li>Hay que reconciliar la ruta caliente con la fría para que las cifras coincidan.</li><li>Curva de aprendizaje y costo del streaming para un equipo pequeño.</li></ul></dd>
+    <dt>5. Señal para revisar</dt><dd><ul><li>Si el equipo supera unas decenas de personas y las áreas esperan al equipo central para cada dato nuevo, evaluar un mesh.</li><li>Si la operación en Ecuador y Panamá trae reglas de datos distintas por país, evaluar dominios federados.</li><li>Si nadie usa las alertas en tiempo real, volver a batch y recortar el streaming.</li></ul></dd>
+  </dl>
+  <figure class="diag"><iframe src="diagramas/d7-anio5-mesh.html" title="Evolución prevista para el Año 5" loading="lazy" style="height:795px"></iframe><figcaption>Evolución prevista para el Año 5 · <a href="diagramas/d7-anio5-mesh.html" target="_blank" rel="noopener">abrir en pestaña nueva</a></figcaption></figure>
+</section>
+
+<section id="hibrida">
+  <div class="eyebrow">Extra</div>
+  <h2>Propuesta de ingesta híbrida: dos rutas, un solo crudo</h2>
+  <div class="grid2">
+    <div class="card"><h4>Ruta caliente</h4><p>Streaming y CDC para POS, sensores, clics, inventario y precios. Alimenta las alertas de stock y de neveras en segundos.</p></div>
+    <div class="card"><h4>Ruta fría</h4><p>Batch para archivos, texto y todo lo demás, más la conciliación de lo anterior. Guarda el histórico y corrige lo que llegó tarde o duplicado.</p></div>
+  </div>
+  <p>Ambas rutas aterrizan en el mismo almacenamiento crudo (bronce) y se transforman después con ELT, de modo que comparten reglas de limpieza.</p>
+  <h3>Qué se activa en cada momento</h3>
+  <ul><li><strong>Hoy.</strong> Batch + CDC puntual en inventario y POS. Sin broker de eventos: el equipo de 4 personas no lo sostendría.</li><li><strong>Año 2.</strong> Se agrega streaming con un broker para sensores y clics. Con tienda en línea y sensores en todas las neveras sí se justifica.</li><li><strong>Año 5.</strong> Cada dominio opera sus propios pipelines bajo contratos de datos.</li></ul>
+  <h3>Lo que se sacrifica</h3>
+  <ul><li>Más piezas que operar con un equipo pequeño</li><li>Reconciliar dos rutas</li><li>Riesgo de cifras divergentes entre ellas</li></ul>
+</section>
+
+<section id="entregables">
+  <div class="eyebrow">Entregables</div>
+  <h2>Documentos del taller</h2>
+  <ul>
+    <li><a href="Taller1_RetailNova_Resuelto.pdf">Taller resuelto en PDF</a> con las cuatro evidencias.</li>
+    <li>Diagramas interactivos: <a href="diagramas/d1-actual.html">RetailNova hoy: ETL nocturno hacia un DW</a> · <a href="diagramas/d2-recorrido-a.html">Recorrido A: quiebre de stock</a> · <a href="diagramas/d3-recorrido-b.html">Recorrido B: fallas de neveras</a> · <a href="diagramas/d4-recorrido-c.html">Recorrido C: opinión de la marca Nova</a> · <a href="diagramas/d5-etl-vs-elt.html">ETL frente a ELT</a> · <a href="diagramas/d6-anio2-hibrida.html">Año 2: lakehouse con ingesta híbrida</a> · <a href="diagramas/d7-anio5-mesh.html">Año 5: Data Mesh</a>.</li>
+  </ul>
+  <footer>RetailNova es una empresa ficticia creada para el curso. Diagramas generados con Archify.</footer>
+</section>
+</main>
+</div>
+<script>
+(function(){
+ var root=document.documentElement, key='rn-theme';
+ try{var t=localStorage.getItem(key); if(t) root.setAttribute('data-theme',t);}catch(e){}
+ document.getElementById('themebtn').addEventListener('click',function(){
+   var dark=root.getAttribute('data-theme')==='dark'||(root.getAttribute('data-theme')==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+   var n=dark?'light':'dark'; root.setAttribute('data-theme',n); try{localStorage.setItem(key,n)}catch(e){}
+ });
+ var side=document.getElementById('side'), mb=document.getElementById('menubtn');
+ mb.addEventListener('click',function(){var o=side.classList.toggle('open'); mb.setAttribute('aria-expanded',o);});
+ side.addEventListener('click',function(ev){if(ev.target.tagName==='A') side.classList.remove('open');});
+ document.querySelectorAll('[role=tab]').forEach(function(b){b.addEventListener('click',function(){
+   document.querySelectorAll('[role=tab]').forEach(function(x){x.setAttribute('aria-selected',x===b)});
+   document.querySelectorAll('[role=tabpanel]').forEach(function(p){p.hidden=p.id!==b.dataset.tab});
+ })});
+ var links=[].slice.call(document.querySelectorAll('nav.side a'));
+ if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id)})}})},{rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('main section').forEach(function(s){io.observe(s)});
+ }
+})();
+</script>
+</body>
+</html>
