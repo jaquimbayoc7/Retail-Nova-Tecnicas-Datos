@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: retail-nova-tecnicas-datos
+    runtime: static
+    buildCommand: echo "Sitio estático, sin build"
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*.pdf
+        name: Content-Disposition
+        value: inline
