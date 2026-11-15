@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RetailNova · Taller 1</title>
-<meta name="description" content="Taller 1 resuelto: fuentes de datos, ciclo de vida, ETL vs ELT y arquitectura recomendada para RetailNova.">
+<title>RetailNova · Talleres 1, 2 y 3</title>
+<meta name="description" content="Proyecto RetailNova: arquitectura de datos (Taller 1), modelo estrella con SCD tipo 2 (Taller 2) y Data Vault con Medallion en PostgreSQL (Taller 3).">
 <style>
 :root{--bg:#f6f7f9;--surface:#fff;--ink:#14202b;--muted:#5b6b7a;--line:#dfe4ea;--brand:#0f766e;--brand-ink:#fff;--brand-soft:#e3f4f1;--warn:#b45309;--warn-soft:#fdf2e3;--bad:#be123c;--bad-soft:#fde8ee;--ok:#15803d;--side:#0e2a33;--side-ink:#d6e6ea;--star:#d97706}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1419;--surface:#151e25;--ink:#e6edf2;--muted:#93a4b3;--line:#263540;--brand:#2dd4bf;--brand-ink:#04211e;--brand-soft:#10312e;--warn:#fbbf24;--warn-soft:#33270f;--bad:#fb7185;--bad-soft:#3a1722;--ok:#4ade80;--side:#0a1217;--side-ink:#b9ccd6}}
@@ -87,6 +87,208 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
  .grid2,.vs,.timeline{grid-template-columns:minmax(0,1fr)}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} nav.side{transition:none}}
+
+/* ===== Talleres 2 y 3 ===== */
+.lead{font-size:clamp(16px,2vw,19px);max-width:68ch}
+.hero2{position:relative;overflow:hidden}
+.hero2:before{content:"";position:absolute;right:-120px;top:-160px;width:480px;height:480px;background:radial-gradient(circle,var(--brand-soft),transparent 68%);pointer-events:none}
+.hero2>*{position:relative}
+.journey{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
+.step{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--surface);transition:transform .15s,border-color .15s,box-shadow .15s}
+.step:hover,.step:focus-visible{transform:translateY(-3px);border-color:var(--brand);box-shadow:0 8px 22px rgba(15,118,110,.14)}
+.step .n{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.step h3{margin:4px 0 6px}
+.step .tag{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;background:var(--brand-soft);color:var(--brand);padding:3px 10px;border-radius:99px}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:0 4px}
+pre code{background:none;border:0;padding:0;font-size:13px}
+pre{background:var(--side);color:#d6e6ea;border-radius:10px;padding:14px 16px;overflow:auto;margin:8px 0 0;line-height:1.5}
+details.code{margin:12px 0;border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--bg)}
+details.code summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--brand)}
+.part{margin:56px 0 12px;padding:clamp(18px,3vw,28px);border-radius:14px;background:var(--side);color:#fff;scroll-margin-top:16px}
+.part h2{color:#fff;font-size:clamp(22px,3vw,30px);margin:2px 0 6px}
+.part p{margin:6px 0 0;color:var(--side-ink);max-width:75ch}
+.part code{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}
+.part .pn{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5eead4}
+.complaints{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.complaints span{font-size:13px;border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:4px 12px;color:var(--side-ink)}
+table.thread th[scope=row]{font-weight:700;color:var(--brand);white-space:nowrap;font-size:14px}
+table.thread tbody tr:hover{background:var(--brand-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip,.seg button{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:7px 14px;border-radius:99px;cursor:pointer;font:inherit;font-size:14px}
+.chip.on,.seg button[aria-checked=true]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.cards18{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:8px 0 16px}
+.tcard{position:relative;border:1px solid var(--line);border-left:4px solid var(--c,var(--brand));border-radius:10px;padding:10px 12px 10px 40px;background:var(--bg);font-size:14px;transition:opacity .2s,transform .2s}
+.tcard i{position:absolute;left:10px;top:10px;width:22px;height:22px;border-radius:50%;background:var(--c,var(--brand));color:#fff;font:700 11px/22px system-ui;text-align:center;font-style:normal}
+.tcard b{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.tcard[data-c=hecho]{--c:#d97706}.tcard[data-c=cliente]{--c:#0f766e}.tcard[data-c=producto]{--c:#2563eb}.tcard[data-c=tienda]{--c:#7c3aed}.tcard[data-c=fecha]{--c:#db2777}.tcard[data-c=otro]{--c:#64748b}
+.tcard.dim{opacity:.18;transform:scale(.97)}
+.pick th,.pick td{background:var(--brand-soft)}
+.svgfig svg{display:block;width:100%;height:auto;background:var(--surface)}
+.svgfig .node{fill:var(--surface);stroke:var(--line);stroke-width:1.6}
+.svgfig .node.fact{fill:var(--brand-soft);stroke:var(--brand);stroke-width:2}
+.svgfig .node.ghost{fill:none;stroke:var(--muted);stroke-dasharray:5 4}
+.svgfig .node.hub{fill:rgba(15,118,110,.14);stroke:#0f766e}
+.svgfig .node.lnk{fill:rgba(217,119,6,.16);stroke:#d97706}
+.svgfig .node.sat{fill:rgba(37,99,235,.12);stroke:#2563eb}
+.svgfig .t{fill:var(--ink);font:700 14px system-ui,sans-serif}
+.svgfig .k{fill:var(--ink);font:12.5px ui-monospace,Consolas,monospace;opacity:.85}
+.svgfig .k.hl{fill:var(--brand);font-weight:700;opacity:1}
+.svgfig .s{fill:var(--muted);font:12px system-ui,sans-serif}
+.svgfig .edge path{stroke:var(--muted);stroke-width:1.6;fill:none}
+.svgfig .edge path.dash{stroke-dasharray:5 4}
+.svgfig g.pick{cursor:pointer}
+.svgfig g.pick:hover .node,.svgfig g.pick:focus-visible .node,.svgfig g.pick.sel .node{stroke-width:3}
+.svgfig g.pick:focus-visible{outline:none}
+.svgfig .hint{color:var(--brand);font-weight:600}
+.snow{display:grid;gap:8px;font-size:13px}
+.snow b{display:block;color:var(--brand);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.scdgrid{align-items:start}
+.pill.p-t1{background:#fee2e2;color:#991b1b}.pill.p-t2{background:#d1fae5;color:#065f46}.pill.p-t3{background:#e0e7ff;color:#3730a3}
+.pill.p-ad{background:#d1fae5;color:#065f46}.pill.p-sa{background:#fef3c7;color:#92400e}.pill.p-na{background:#fee2e2;color:#991b1b}
+tr.old td{opacity:.55}
+tr.ana td{background:var(--brand-soft)}
+tr.new td{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:var(--warn-soft)}to{background:transparent}}
+.trap{border:1px solid var(--line);border-left:4px solid var(--bad);background:var(--bad-soft);border-radius:12px;padding:14px 18px;margin-top:18px}
+.trap h4{color:var(--bad);margin:0 0 4px}
+.invrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.invrow label{flex:1;min-width:110px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:block}
+.invrow label span{display:block;font-size:12px;color:var(--muted)}
+.invrow b{font-size:22px}
+.invout{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.invout>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.invout small{display:block;color:var(--muted);font-size:12px}
+.invout b{font-size:24px}.invout b.bad{color:var(--bad);text-decoration:line-through}
+.q-card h4{font-size:15px;line-height:1.35}
+.callout{border-left:4px solid var(--brand);background:var(--brand-soft);border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0 0}
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:16px 0}
+.fnode{flex:1 1 170px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);border-top:4px solid var(--muted)}
+.fnode small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.fnode b{display:block;font-size:17px;margin:2px 0}
+.fnode span{font-size:13px;color:var(--muted)}
+.fnode.fb{border-top-color:#b45309}.fnode.fs{border-top-color:#64748b}.fnode.fg{border-top-color:#d4a017}
+.farrow{align-self:center;font-size:22px;color:var(--brand);font-weight:700}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-bottom:4px}
+.dot.hub{background:#0f766e}.dot.lnk{background:#d97706}.dot.sat{background:#2563eb}.dot.hd{background:#7c3aed}
+.lotenote{border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:10px;padding:10px 14px;background:var(--brand-soft);margin-bottom:12px;font-size:14px}
+.lotenote ul{margin:6px 0 0;padding-left:18px}
+.delta{color:var(--ok);font-weight:700;font-size:12px;margin-left:4px}
+.bars{display:grid;gap:10px;margin:14px 0}
+.bar{display:grid;grid-template-columns:90px minmax(0,1fr) 150px;gap:10px;align-items:center;font-size:14px}
+.bar .track{background:var(--bg);border:1px solid var(--line);border-radius:99px;height:22px;overflow:hidden}
+.bar .fill{height:100%;background:var(--brand);border-radius:99px;transition:width .5s ease;min-width:2px}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums}
+.bar.hot .fill{background:var(--star)}
+.bignum{font-size:44px;font-weight:800;color:var(--brand);margin:0;line-height:1}
+.bignum small{font-size:16px;font-weight:500;color:var(--muted)}
+.reco{border:1px solid var(--line);border-radius:12px;padding:6px 18px 12px;margin-top:16px;background:var(--bg)}
+@media (max-width:900px){.journey,.invout{grid-template-columns:minmax(0,1fr)}.bar{grid-template-columns:70px minmax(0,1fr) 110px}.farrow{display:none}}
+@media (prefers-reduced-motion:reduce){.bar .fill,.tcard,.step{transition:none}tr.new td{animation:none}}
+
+/* ===== Story time, conclusiones y menú dinámico ===== */
+.cta{display:inline-block;background:var(--brand);color:var(--brand-ink);text-decoration:none;font-weight:700;padding:10px 18px;border-radius:99px;margin:6px 0 2px;transition:transform .15s,box-shadow .15s}
+.cta:hover,.cta:focus-visible{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,118,110,.28)}
+.story{border:1px solid var(--line);border-radius:14px;background:var(--bg);padding:clamp(12px,2.5vw,20px);margin-top:14px;outline:none}
+.story:focus-visible{box-shadow:0 0 0 3px var(--brand-soft),0 0 0 4px var(--brand)}
+.sdots{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:0 0 14px}
+.sdots button{min-width:30px;height:30px;padding:0 6px;border-radius:99px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:700 12px system-ui;cursor:pointer;transition:background .15s,transform .15s}
+.sdots button:hover{transform:scale(1.1)}
+.sdots button[data-ch=req]{border-color:#64748b}.sdots button[data-ch=t1]{border-color:#d97706}.sdots button[data-ch=t2]{border-color:#2563eb}.sdots button[data-ch=t3]{border-color:#0f766e}
+.sdots button[aria-current=step]{color:#fff}
+.sdots button[data-ch=req][aria-current=step]{background:#64748b}.sdots button[data-ch=t1][aria-current=step]{background:#d97706}.sdots button[data-ch=t2][aria-current=step]{background:#2563eb}.sdots button[data-ch=t3][aria-current=step]{background:#0f766e}
+.sdots button.done{background:var(--brand-soft)}
+.sstep{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(14px,2.5vw,26px);align-items:start}
+.story.js .sstep{display:none}.story.js .sstep.on{display:grid}
+.stext p{margin:.55em 0}
+.stext h3{margin:8px 0 6px;font-size:clamp(18px,2.4vw,23px);line-height:1.25}
+.learn{border-left:3px solid var(--brand);padding-left:10px;color:var(--muted);font-size:14px}
+.schip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px;color:#fff}
+.c-req{background:#64748b}.c-t1{background:#d97706}.c-t2{background:#2563eb}.c-t3{background:#0f766e}
+.tg{font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px}.tg.q{background:var(--warn-soft);color:var(--warn)}.tg.s{background:var(--bad-soft);color:var(--bad)}
+.sscene{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.chartbox{padding:8px}
+.chartbox .lgd{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);padding:4px 10px 8px}
+.chartbox .lgd i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.a{opacity:0}
+.story .sstep.on .a{animation:pop .55s ease both;animation-delay:var(--d,0s)}
+.story:not(.js) .a{opacity:1}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.svgfig .node.bad{fill:var(--bad-soft);stroke:var(--bad);stroke-dasharray:5 4}
+.svgfig .node.ok{fill:rgba(21,128,61,.13);stroke:var(--ok)}
+.svgfig .node.lb{fill:rgba(180,83,9,.14);stroke:#b45309}.svgfig .node.ls{fill:rgba(100,116,139,.16);stroke:#64748b}.svgfig .node.lg{fill:rgba(212,160,23,.2);stroke:#d4a017}
+.svgfig .col{stroke-width:1.5}.svgfig .col.c1{fill:rgba(37,99,235,.1);stroke:#2563eb}.svgfig .col.c2{fill:rgba(217,119,6,.1);stroke:#d97706}.svgfig .col.c3{fill:rgba(219,39,119,.09);stroke:#db2777}
+.svgfig .risk{stroke-width:2}.svgfig .risk.s{fill:var(--bad-soft);stroke:var(--bad)}.svgfig .risk.q{fill:var(--warn-soft);stroke:var(--warn)}
+.svgfig .edge2{stroke:var(--muted);stroke-dasharray:4 3;fill:none;stroke-width:1.5}
+.svgfig .hotband{fill:rgba(217,119,6,.16);stroke:#d97706}.svgfig .coldband{fill:rgba(37,99,235,.13);stroke:#2563eb}
+.svgfig .seg1{fill:#0f766e}.svgfig .seg2{fill:rgba(217,119,6,.22);stroke:#d97706}
+.svgfig .pt{fill:var(--star)}
+.svgfig .num{fill:#0f766e}
+.svgfig .t[fill="#fff"]{fill:#fff}
+.svgfig .cell{fill:var(--surface);stroke:var(--line);stroke-width:1.5}.svgfig .cell.hot{fill:var(--brand-soft);stroke:var(--brand)}.svgfig .cell.ghost{fill:none;stroke:var(--muted);stroke-dasharray:4 3}
+.svgfig .bar1{fill:#0f766e}.svgfig .bar2{fill:#d97706}
+.svgfig .sq{stroke-width:1.5}.svgfig .sq.ok{fill:rgba(21,128,61,.15);stroke:var(--ok)}.svgfig .sq.bad{fill:var(--bad-soft);stroke:var(--bad)}.svgfig .sq.warn{fill:var(--warn-soft);stroke:var(--warn)}
+.sctl{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 18px;border-radius:99px;font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.scount{font-size:13px;color:var(--muted);text-align:center}
+.sbar{height:4px;background:var(--line);border-radius:4px;margin-top:12px;overflow:hidden}.sbar i{display:block;height:100%;width:0;background:var(--brand);transition:width .35s}
+/* conclusiones */
+.ccgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;margin-top:6px}
+.ccl h3{margin-top:12px}.ccl ul{padding-left:20px}.ccl li{margin:8px 0}
+.ccr{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg);min-width:0}
+.ccr h4{margin:0 0 4px}
+.hbars{display:grid;gap:10px;margin:12px 0}
+.hrow{display:grid;grid-template-columns:110px minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:14px}
+.hrow .track{background:var(--surface);border:1px solid var(--line);border-radius:99px;height:22px;overflow:hidden}
+.hrow .fill{height:100%;border-radius:99px;background:#94a3b8;transition:width .5s}
+.hrow.win .fill{background:var(--brand)}.hrow.win{font-weight:700}
+.hrow b{text-align:right}
+.qfig{margin:10px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.qfig svg{display:block;width:100%;height:auto;background:var(--surface)}
+.qfig g[data-p] text{transition:opacity .25s}.qfig g[data-p].dim text{opacity:.28}.qfig g[data-p].dim .node{stroke:var(--line);stroke-width:1.2}
+.qfig g[data-p].lit .node{stroke:var(--star);stroke-width:3}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin:6px 0 10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.l1{background:#94a3b8}.l2{background:#2563eb}.l3{background:#0f766e}
+.gbars{display:grid;gap:9px}
+.grow{display:grid;grid-template-columns:128px minmax(0,1fr);gap:8px;align-items:center;font-size:12.5px}
+.grow code{font-size:11.5px;white-space:nowrap}
+.gb{display:flex;align-items:center;gap:6px;height:9px;margin:2px 0}
+.gb i{display:block;height:9px;border-radius:5px;min-width:3px;transition:width .5s}
+.gb span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:9px}
+/* menú lateral dinámico */
+#topbar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#d97706,#2563eb,#0f766e);z-index:50;transition:width .1s}
+.focus{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0 0 14px;padding:8px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.04)}
+.flabel{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-right:2px}
+.fchip{background:transparent;border:1px solid rgba(255,255,255,.22);color:var(--side-ink);padding:3px 9px;border-radius:99px;font:inherit;font-size:12px;cursor:pointer}
+.fchip:hover{background:rgba(255,255,255,.1)}
+.fchip.on{background:#2dd4bf;color:#04211e;border-color:#2dd4bf;font-weight:700}
+.ngrp{margin:2px 0}
+.ghead{position:relative;display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:0;color:var(--side-ink);padding:9px 10px 11px;border-radius:8px;font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer}
+.ghead:hover{background:rgba(255,255,255,.08)}
+.gname{flex:1}
+.gcv{font-size:12px;opacity:.7;transition:transform .2s}
+.ngrp.open .gcv{transform:rotate(90deg)}
+.gdot{width:10px;height:10px;border-radius:50%;flex:none}
+.g0{background:#94a3b8}.gs{background:#f472b6}.g1{background:#d97706}.g2{background:#3b82f6}.g3{background:#2dd4bf}.g4{background:#a78bfa}
+.gp{position:absolute;left:10px;right:10px;bottom:3px;height:2px;background:rgba(255,255,255,.1);border-radius:2px}
+.gp:after{content:"";display:block;height:100%;width:var(--p,0%);background:currentColor;border-radius:2px;transition:width .2s;color:#2dd4bf}
+.glinks{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s}
+.glinks>div{overflow:hidden;min-height:0}
+.ngrp.open .glinks{grid-template-rows:1fr}
+.glinks a{padding:6px 10px 6px 28px;font-size:13px;position:relative}
+.glinks a.on{background:rgba(45,212,191,.16);color:#fff}
+.glinks a.on:before{content:"";position:absolute;left:14px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#2dd4bf}
+.fnav{display:none;justify-content:space-between;gap:10px;margin:28px 0 0}
+body[data-focus] .fnav{display:flex}
+body[data-focus] main>[data-t]{display:none}
+body[data-focus=story] main>[data-t=story],body[data-focus=t1] main>[data-t=t1],body[data-focus=t2] main>[data-t=t2],body[data-focus=t3] main>[data-t=t3],body[data-focus=conc] main>[data-t=conc]{display:block}
+body[data-focus] main>.part{margin-top:0}
+@media (max-width:900px){.sstep,.ccgrid{grid-template-columns:minmax(0,1fr)}.hrow{grid-template-columns:90px minmax(0,1fr) 30px}.grow{grid-template-columns:104px minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.a{opacity:1;animation:none!important}.glinks,.gcv,.sbar i,.hrow .fill,.gb i{transition:none}}
+.ccgrid[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -94,25 +296,313 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
 <div class="layout">
 <nav class="side" id="side" aria-label="Secciones">
   <div class="brand">RetailNova</div>
-  <div class="sub">Taller 1 · Semana 1<br>Comité de arquitectura</div>
-  <a href="#inicio">Resumen</a>
-  <div class="grp">Actividades</div>
-  <a href="#act1">1 · Fuentes de datos</a>
-  <a href="#act2">2 · Recorrido del dato</a>
-  <a href="#act3">3 · ETL vs ELT</a>
-  <a href="#act4">4 · Matrices de decisión</a>
-  <a href="#act5">5 · Decisión final</a>
-  <div class="grp">Extras</div>
-  <a href="#hibrida">Ingesta híbrida</a>
-  <a href="#entregables">Entregables</a>
+  <div class="sub">Técnicas Avanzadas de Datos<br>Talleres 1 · 2 · 3</div>
+  <div class="focus" role="group" aria-label="Qué mostrar">
+    <span class="flabel">Ver</span>
+    <button type="button" class="fchip on" data-f="all">Todo</button>
+    <button type="button" class="fchip" data-f="story">Historia</button>
+    <button type="button" class="fchip" data-f="t1">T1</button>
+    <button type="button" class="fchip" data-f="t2">T2</button>
+    <button type="button" class="fchip" data-f="t3">T3</button>
+    <button type="button" class="fchip" data-f="conc">Fin</button>
+  </div>
+  <div class="ngrp open" data-g="intro">
+    <button type="button" class="ghead" aria-expanded="true"><span class="gdot g0"></span><span class="gname">Inicio</span><span class="gcv" aria-hidden="true">▸</span><i class="gp"></i></button>
+    <div class="glinks"><div><a href="#inicio">Resumen del proyecto</a><a href="#hilo">El hilo conductor</a></div></div>
+  </div>
+  <div class="ngrp" data-g="story">
+    <button type="button" class="ghead" aria-expanded="false"><span class="gdot gs"></span><span class="gname">▶ Story time</span><span class="gcv" aria-hidden="true">▸</span><i class="gp"></i></button>
+    <div class="glinks"><div><a href="#historia">Historia paso a paso</a></div></div>
+  </div>
+  <div class="ngrp" data-g="t1">
+    <button type="button" class="ghead" aria-expanded="false"><span class="gdot g1"></span><span class="gname">Taller 1 · Arquitectura</span><span class="gcv" aria-hidden="true">▸</span><i class="gp"></i></button>
+    <div class="glinks"><div>
+      <a href="#t1">Presentación</a><a href="#act1">1 · Fuentes de datos</a><a href="#act2">2 · Recorrido del dato</a><a href="#act3">3 · ETL vs ELT</a><a href="#act4">4 · Matrices de decisión</a><a href="#act5">5 · Decisión final</a><a href="#hibrida">Ingesta híbrida</a></div></div>
+  </div>
+  <div class="ngrp" data-g="t2">
+    <button type="button" class="ghead" aria-expanded="false"><span class="gdot g2"></span><span class="gname">Taller 2 · Modelo dimensional</span><span class="gcv" aria-hidden="true">▸</span><i class="gp"></i></button>
+    <div class="glinks"><div>
+      <a href="#t2">Presentación</a><a href="#t2-tarjetas">¿Hecho o dimensión?</a><a href="#t2-grano">El grano</a><a href="#t2-estrella">Esquema estrella</a><a href="#t2-copo">Estrella vs copo</a><a href="#t2-scd">SCD: la clienta que se mudó</a><a href="#t2-aditivas">¿Se puede sumar?</a><a href="#t2-cierre">Las 4 quejas</a></div></div>
+  </div>
+  <div class="ngrp" data-g="t3">
+    <button type="button" class="ghead" aria-expanded="false"><span class="gdot g3"></span><span class="gname">Taller 3 · Data Vault</span><span class="gcv" aria-hidden="true">▸</span><i class="gp"></i></button>
+    <div class="glinks"><div>
+      <a href="#t3">Presentación</a><a href="#t3-medallion">Medallion y Bronze</a><a href="#t3-vault">Raw Vault</a><a href="#t3-lotes">Tres lotes</a><a href="#t3-gold">Business Vault y Gold</a><a href="#t3-audit">Auditoría</a><a href="#t3-cierre">Recomendación</a></div></div>
+  </div>
+  <div class="ngrp" data-g="conc">
+    <button type="button" class="ghead" aria-expanded="false"><span class="gdot g4"></span><span class="gname">Cierre</span><span class="gcv" aria-hidden="true">▸</span><i class="gp"></i></button>
+    <div class="glinks"><div><a href="#conclusiones">Conclusiones por taller</a><a href="#entregables">Entregables</a></div></div>
+  </div>
   <button class="themebtn" id="themebtn" type="button">Cambiar tema</button>
 </nav>
 <main>
-<section class="hero" id="inicio">
-  <div class="eyebrow">Técnicas Avanzadas de Gestión de Datos · Semana 1</div>
-  <h1>Cómo debería organizar RetailNova sus datos para crecer</h1>
-  <p>Recomendación del comité de arquitectura: <strong>empezar con el Data Warehouse que ya tiene, pasar a un Lakehouse con ingesta híbrida en el Año 2 y evolucionar hacia un Data Mesh cuando la empresa tenga el tamaño para operarlo</strong>.</p>
-  <p class="muted small">Maestría en Computación para Desarrollo de Apps Inteligentes<br><strong>Integrantes:</strong> Julian Andres Quimbayo Castro (rol simulado: Arquitecto de Datos)<br><strong>Presentado al Docente:</strong> Ing. Alexander Yela Reyes</p>
+<section class="hero hero2" id="inicio">
+  <div class="eyebrow">Técnicas Avanzadas de Gestión de Datos · Semanas 1, 2 y 3</div>
+  <h1>RetailNova: de la arquitectura de datos al Data Vault, en tres talleres</h1>
+  <p class="lead">Una cadena de 12 tiendas en el Valle del Cauca quiere dejar de reportar «lo de ayer». En tres talleres construimos la respuesta paso a paso: <strong>primero la arquitectura</strong>, después <strong>el modelo de ventas</strong> y por último <strong>un Data Vault en PostgreSQL</strong> que no olvida nada.</p>
+  <p class="muted small">Maestría en Computación para Desarrollo de Apps Inteligentes<br><strong>Integrante:</strong> Julian Andres Quimbayo Castro (roles simulados: Arquitecto, Modelador e Ingeniero de Datos)<br><strong>Presentado al Docente:</strong> Ing. Alexander Yela Reyes</p>
+  <p><a class="cta" href="#historia">▶ Ver la historia paso a paso</a></p>
+  <div class="kpis">
+    <div class="kpi"><b data-count="12">12</b>tiendas en el Valle del Cauca</div>
+    <div class="kpi"><b data-count="3">3</b>talleres, un solo hilo</div>
+    <div class="kpi"><b data-count="1380300" data-fmt="cop">1.380.300</b>COP en ventas auditadas (Taller 3)</div>
+    <div class="kpi"><b data-count="17">17</b>objetos en el modelo final</div>
+  </div>
+  <div class="journey" id="ruta">
+    <a class="step" href="#t1">
+      <span class="n">Semana 1</span>
+      <h3>Arquitectura</h3>
+      <p class="small">¿Warehouse, lake, lakehouse o mesh? Decidimos <em>cuándo</em> usar cada uno y dibujamos el ciclo de vida del dato.</p>
+      <span class="tag">Lakehouse con capas bronce · plata · oro</span>
+    </a>
+    <a class="step" href="#t2">
+      <span class="n">Semana 2</span>
+      <h3>Modelo dimensional</h3>
+      <p class="small">Convertimos la tabla plana de ventas en una estrella con grano de línea de ticket y SCD tipo 2.</p>
+      <span class="tag">1 hecho + 4 dimensiones</span>
+    </a>
+    <a class="step" href="#t3">
+      <span class="n">Semana 3</span>
+      <h3>Data Vault + Medallion</h3>
+      <p class="small">Implementamos las capas en PostgreSQL: hubs, links y satellites, carga repetible y auditoría completa.</p>
+      <span class="tag">Bronze → Silver (Vault) → Gold</span>
+    </a>
+  </div>
+</section>
+
+<section id="historia" data-t="story">
+  <div class="eyebrow">Story time</div>
+  <h2>Cómo se construyó RetailNova, paso a paso</h2>
+  <p>De los requerimientos al Data Vault en 11 escenas. Avanza con los botones, con las flechas del teclado o tocando un punto de la línea de tiempo.</p>
+  <div class="story" id="story" tabindex="0" aria-label="Historia interactiva del proyecto">
+    <ol class="sdots" id="sdots" aria-label="Escenas"></ol>
+    <div class="sstage" id="sstage">
+
+    <article class="sstep" data-ch="req" data-label="El punto de partida">
+      <div class="stext"><span class="schip c-req">Requerimientos</span><h3>Una cadena que se entera de todo con un día de retraso</h3>
+        <p>RetailNova tiene 12 tiendas en el Valle del Cauca, un programa de puntos con 180.000 clientes y 1,2 millones de compras al mes. Cada noche un ETL carga un warehouse y Power BI muestra <em>las ventas de ayer</em>.</p>
+        <p>Lo que piden las áreas: saber qué producto se agota <strong>antes</strong> de que pase, detectar neveras dañadas, conocer qué opinan de la marca Nova, y que un cliente que se muda no reescriba el pasado. Y todo con un equipo de datos de <strong>4 personas</strong>.</p>
+        <p class="learn">Tarea: decidir cómo organizar los datos para crecer.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Situación actual: ETL nocturno hacia un warehouse y Power BI; otras fuentes sin ingesta">
+        <g class="edge"><path d="M125 40 L185 110"/><path d="M125 90 L185 115"/><path d="M125 140 L185 125"/><path d="M125 190 L185 135"/><path d="M295 120 L330 120"/><path d="M430 120 L455 120"/></g>
+        <g class="a" style="--d:.1s"><rect class="node" x="10" y="20" width="115" height="40" rx="8"/><text class="t" x="22" y="45">POS</text></g>
+        <g class="a" style="--d:.2s"><rect class="node" x="10" y="70" width="115" height="40" rx="8"/><text class="t" x="22" y="95">ERP</text></g>
+        <g class="a" style="--d:.3s"><rect class="node" x="10" y="120" width="115" height="40" rx="8"/><text class="t" x="22" y="145">Puntos Nova</text></g>
+        <g class="a" style="--d:.4s"><rect class="node" x="10" y="170" width="115" height="40" rx="8"/><text class="t" x="22" y="195">Excel de metas</text></g>
+        <g class="a" style="--d:.6s"><rect class="node" x="185" y="75" width="110" height="90" rx="10"/><text class="t" x="240" y="115" text-anchor="middle">ETL</text><text class="s" x="240" y="133" text-anchor="middle">nocturno</text></g>
+        <g class="a" style="--d:.8s"><rect class="node fact" x="330" y="75" width="100" height="90" rx="10"/><text class="t" x="380" y="115" text-anchor="middle">Warehouse</text><text class="s" x="380" y="133" text-anchor="middle">ventas de ayer</text></g>
+        <g class="a" style="--d:1s"><rect class="node" x="455" y="75" width="95" height="90" rx="10"/><text class="t" x="502" y="115" text-anchor="middle">Power BI</text><text class="s" x="502" y="133" text-anchor="middle">D-1</text></g>
+        <g class="a" style="--d:1.3s"><rect class="node bad" x="10" y="250" width="420" height="58" rx="10"/><text class="t" x="24" y="275">Audios, reseñas, PDF, sensores, redes…</text><text class="s" x="24" y="295">llegan a la empresa pero nadie los analiza</text></g>
+        <g class="a" style="--d:1.5s"><text class="s" x="455" y="285" >✕ sin ingesta</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t1" data-label="Qué datos hay">
+      <div class="stext"><span class="schip c-t1">Taller 1 · Arquitectura</span><h3>Primero, inventariar: 15 fuentes en 3 formas</h3>
+        <p>El comité clasificó cada fuente por su forma y por cómo llegaría a la plataforma. Salió parejo: <strong>5 estructuradas, 5 semiestructuradas y 5 no estructuradas</strong>, y hoy solo las del primer grupo se aprovechan.</p>
+        <p>Tres fuentes valen más que el resto (★): el <strong>POS</strong> (qué se agota), los <strong>sensores de neveras</strong> (mermas) y las <strong>reseñas web</strong> (marca Nova).</p>
+        <p class="learn">Aprendizaje: la forma del dato decide cómo se ingiere y dónde se guarda.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Quince fuentes agrupadas en estructuradas, semiestructuradas y no estructuradas">
+        <g class="a" style="--d:.1s"><rect class="col c1" x="8" y="10" width="170" height="305" rx="12"/><text class="t" x="22" y="36">Estructurado · 5</text>
+          <text class="k" x="22" y="68">★ POS · tickets</text><text class="k" x="22" y="100">Inventario del ERP</text><text class="k" x="22" y="132">Puntos Nova</text><text class="k" x="22" y="164">Excel de metas</text><text class="k" x="22" y="196">Precios y promos</text></g>
+        <g class="a" style="--d:.4s"><rect class="col c2" x="195" y="10" width="170" height="305" rx="12"/><text class="t" x="209" y="36">Semiestructurado · 5</text>
+          <text class="k" x="209" y="68">★ Reseñas (JSON)</text><text class="k" x="209" y="100">★ Sensores de neveras</text><text class="k" x="209" y="132">Clics en la tienda web</text><text class="k" x="209" y="164">Logs del servidor</text><text class="k" x="209" y="196">Menciones en redes</text></g>
+        <g class="a" style="--d:.7s"><rect class="col c3" x="382" y="10" width="170" height="305" rx="12"/><text class="t" x="396" y="36">No estructurado · 5</text>
+          <text class="k" x="396" y="68">Fotos del catálogo</text><text class="k" x="396" y="100">Audios del call center</text><text class="k" x="396" y="132">Facturas PDF</text><text class="k" x="396" y="164">Correos de reclamos</text><text class="k" x="396" y="196">Video de cámaras</text></g>
+        <g class="a" style="--d:1.1s"><text class="s" x="22" y="250">Ingesta: CDC y streaming</text><text class="s" x="209" y="250">Streaming y micro-batch</text><text class="s" x="396" y="250">Batch (con OCR o NLP)</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t1" data-label="Ciclo de vida">
+      <div class="stext"><span class="schip c-t1">Taller 1 · Arquitectura</span><h3>Seguir un dato de la caja al gerente</h3>
+        <p>Tomamos la pregunta «¿qué producto se agota primero?» y trazamos las cinco etapas: <strong>generación, ingesta, almacenamiento, transformación y servir</strong>.</p>
+        <p>En cada recorrido se marcó dónde se controla un riesgo de <span class="tg q">calidad</span> (ticket duplicado o con cantidad negativa) y uno de <span class="tg s">seguridad</span> (el documento del cliente viaja en el ticket).</p>
+        <p class="learn">Aprendizaje: la calidad y la seguridad se controlan en una etapa concreta, no «en general».</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Cinco etapas del ciclo de vida con riesgos de calidad y seguridad">
+        <g class="edge"><path d="M106 70 L126 70"/><path d="M222 70 L242 70"/><path d="M338 70 L358 70"/><path d="M454 70 L474 70"/></g>
+        <g class="a" style="--d:.1s"><rect class="node" x="10" y="40" width="96" height="60" rx="10"/><text class="t" x="58" y="68" text-anchor="middle">Generación</text><text class="s" x="58" y="86" text-anchor="middle">caja POS</text></g>
+        <g class="a" style="--d:.3s"><rect class="node" x="126" y="40" width="96" height="60" rx="10"/><text class="t" x="174" y="68" text-anchor="middle">Ingesta</text><text class="s" x="174" y="86" text-anchor="middle">streaming</text></g>
+        <g class="a" style="--d:.5s"><rect class="node" x="242" y="40" width="96" height="60" rx="10"/><text class="t" x="290" y="68" text-anchor="middle">Almacén</text><text class="s" x="290" y="86" text-anchor="middle">bronce crudo</text></g>
+        <g class="a" style="--d:.7s"><rect class="node" x="358" y="40" width="96" height="60" rx="10"/><text class="t" x="406" y="68" text-anchor="middle">Transforma</text><text class="s" x="406" y="86" text-anchor="middle">stock vs ventas</text></g>
+        <g class="a" style="--d:.9s"><rect class="node fact" x="474" y="40" width="76" height="60" rx="10"/><text class="t" x="512" y="68" text-anchor="middle">Servir</text><text class="s" x="512" y="86" text-anchor="middle">alerta</text></g>
+        <g class="a" style="--d:1.2s"><path class="edge2" d="M290 100 L290 150"/><circle class="risk s" cx="290" cy="165" r="15"/><text class="t" x="290" y="170" text-anchor="middle">🔒</text><text class="k" x="285" y="198" text-anchor="middle">Enmascarar</text><text class="k" x="285" y="212" text-anchor="middle">el documento</text><text class="s" x="285" y="228" text-anchor="middle">seguridad</text></g>
+        <g class="a" style="--d:1.5s"><path class="edge2" d="M406 100 L406 150"/><circle class="risk q" cx="406" cy="165" r="15"/><text class="t" x="406" y="170" text-anchor="middle">⚠</text><text class="k" x="412" y="198" text-anchor="middle">Dedup y</text><text class="k" x="412" y="212" text-anchor="middle">cantidad &gt; 0</text><text class="s" x="412" y="228" text-anchor="middle">calidad</text></g>
+        <g class="a" style="--d:1.8s"><rect class="hotband" x="126" y="250" width="200" height="26" rx="13"/><text class="k" x="226" y="268" text-anchor="middle">ruta caliente · segundos</text><rect class="coldband" x="334" y="250" width="216" height="26" rx="13"/><text class="k" x="442" y="268" text-anchor="middle">ruta fría · batch</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t1" data-label="ETL vs ELT">
+      <div class="stext"><span class="schip c-t1">Taller 1 · Arquitectura</span><h3>Limpiar antes o guardar primero</h3>
+        <p>Diez filas crudas del POS traían <strong>9 problemas</strong>: fechas en cuatro formatos, tiendas mal escritas, un duplicado, un precio vacío, cantidades de −1 y de 200…</p>
+        <p>El equipo <strong>ETL</strong> limpió en tránsito y descartó 5 filas, junto con las columnas de pago y cajero. El equipo <strong>ELT</strong> cargó las 10 tal cual y limpió después con SQL. Cuando la gerencia pidió ventas por método de pago y cajero, solo el ELT pudo responder.</p>
+        <p class="learn">Aprendizaje: lo que se descarta antes de conocer la próxima pregunta, no se recupera.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="ETL descarta cinco de diez filas; ELT las conserva todas">
+        <text class="t" x="10" y="24">ETL · transforma y luego carga</text>
+        <text class="t" x="300" y="24">ELT · carga y luego transforma</text>
+        <g id="etlsq"></g>
+        <g class="a" style="--d:1.6s"><rect class="node ok" x="10" y="170" width="250" height="36" rx="8"/><text class="k" x="22" y="193">✓ Reporte diario por tienda</text>
+          <rect class="node bad" x="10" y="214" width="250" height="52" rx="8"/><text class="k" x="22" y="236">✕ ¿Ventas por pago y cajero?</text><text class="s" x="22" y="254">se descartaron: hay que volver al POS</text></g>
+        <g class="a" style="--d:1.9s"><rect class="node ok" x="300" y="170" width="250" height="36" rx="8"/><text class="k" x="312" y="193">✓ Reporte diario por tienda</text>
+          <rect class="node ok" x="300" y="214" width="250" height="52" rx="8"/><text class="k" x="312" y="236">✓ ¿Ventas por pago y cajero?</text><text class="s" x="312" y="254">basta otra consulta SQL sobre la copia</text></g>
+        <g class="a" style="--d:2.2s"><text class="s" x="10" y="300">5 filas válidas · 5 descartadas</text><text class="s" x="300" y="300">10 filas intactas · 5 con estado</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t1" data-label="La decisión">
+      <div class="stext"><span class="schip c-t1">Taller 1 · Arquitectura</span><h3>La mejor arquitectura cambia con el tamaño</h3>
+        <p>Cada arquitectura se calificó de 1 a 5 en siete criterios y en tres momentos. Ganó <strong>el Data Warehouse hoy (28)</strong>, <strong>el Lakehouse en el Año 2 (28)</strong> y <strong>el Data Mesh en el Año 5 (30)</strong>.</p>
+        <p>Lo que cambia es el tipo de dato (clics, sensores, texto), el machine learning y el tamaño del equipo. La recomendación: empezar con el warehouse, pasar a un lakehouse con ingesta híbrida (capas <strong>bronce, plata y oro</strong>) y evolucionar a un mesh cuando haya gente para operarlo.</p>
+        <p class="learn">Esa capa bronce–plata–oro es la que los talleres 2 y 3 van a construir.</p></div>
+      <figure class="sscene svgfig"><div id="storyChart" class="chartbox"></div></figure>
+    </article>
+
+    <article class="sstep" data-ch="t2" data-label="De plana a estrella">
+      <div class="stext"><span class="schip c-t2">Taller 2 · Modelo dimensional</span><h3>Romper la tabla plana en una estrella</h3>
+        <p>La tabla <code>ventas_planas</code> repetía cliente, producto y tienda en cada fila: por eso los reportes tardaban minutos y cada analista escribía la consulta a su manera.</p>
+        <p>Primero se fijó el <strong>grano</strong>: una fila por <em>producto dentro de un ticket</em>. Luego cada entidad pasó a su propia dimensión con clave subrogada, y quedó una tabla de hechos con solo claves y números.</p>
+        <p class="learn">Aprendizaje: el grano más fino permite agregar a cualquier nivel; al revés, no.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="La tabla plana se convierte en una estrella con un hecho y cuatro dimensiones">
+        <g class="a" style="--d:.1s"><rect class="node" x="8" y="40" width="150" height="230" rx="10"/><text class="t" x="20" y="64">ventas_planas</text>
+          <text class="k" x="20" y="92">T-2001 Ana Cali Café</text><text class="k" x="20" y="112">T-2001 Ana Cali Leche</text><text class="k" x="20" y="132">T-2002 Luis Palmira…</text><text class="k" x="20" y="152">T-2003 Ana Cali Café</text><text class="s" x="20" y="184">…el texto se repite</text><text class="s" x="20" y="202">en ~40 columnas</text><text class="s" x="20" y="250" >cliente + producto + tienda</text></g>
+        <g class="a" style="--d:.6s"><path class="edge2" d="M164 155 L225 155"/><path d="M225 155 l-9 -5 m9 5 l-9 5" class="edge2" style="stroke-dasharray:none"/></g>
+        <g class="edge"><path d="M390 165 L290 77"/><path d="M390 165 L490 77"/><path d="M390 165 L290 253"/><path d="M390 165 L490 253"/></g>
+        <g class="a" style="--d:1s"><rect class="node fact" x="335" y="135" width="110" height="60" rx="10"/><text class="t" x="390" y="162" text-anchor="middle">fact_ventas</text><text class="s" x="390" y="180" text-anchor="middle">línea de ticket</text></g>
+        <g class="a" style="--d:1.4s"><rect class="node" x="235" y="60" width="110" height="34" rx="8"/><text class="k" x="290" y="82" text-anchor="middle">dim_cliente</text></g>
+        <g class="a" style="--d:1.6s"><rect class="node" x="435" y="60" width="110" height="34" rx="8"/><text class="k" x="490" y="82" text-anchor="middle">dim_producto</text></g>
+        <g class="a" style="--d:1.8s"><rect class="node" x="235" y="236" width="110" height="34" rx="8"/><text class="k" x="290" y="258" text-anchor="middle">dim_tienda</text></g>
+        <g class="a" style="--d:2s"><rect class="node" x="435" y="236" width="110" height="34" rx="8"/><text class="k" x="490" y="258" text-anchor="middle">dim_fecha</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t2" data-label="La clienta que se mudó">
+      <div class="stext"><span class="schip c-t2">Taller 2 · Modelo dimensional</span><h3>Si Ana se muda, ¿el pasado cambia?</h3>
+        <p>Ana vivía en Cali y el 20 de mayo se muda a Jamundí. Con <strong>SCD tipo 1</strong> se sobrescribe la ciudad y todas sus compras de Cali pasan a Jamundí. Con <strong>tipo 2</strong> se cierra la fila vieja y se abre una nueva con fechas de vigencia.</p>
+        <p>El total de mayo es el mismo ($219.600). Cambia <em>a qué ciudad</em> se atribuye, y esa era la queja de mercadeo.</p>
+        <p class="learn">Aprendizaje: el historial hay que diseñarlo. Y queda una duda: ¿y lo que nadie diseñó?</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Línea de tiempo de Ana en mayo y comparación de reportes con SCD tipo 1 y tipo 2">
+        <text class="s" x="40" y="22">4 may</text><text class="s" x="372" y="22">19–20 may</text><text class="s" x="496" y="22">25 may</text>
+        <g class="a" style="--d:.1s"><rect class="seg1" x="40" y="34" width="343" height="40" rx="8"/><text class="t" x="52" y="59" fill="#fff">key 1 · Cali</text></g>
+        <g class="a" style="--d:.7s"><rect class="seg2" x="389" y="34" width="161" height="40" rx="8"/><text class="t" x="401" y="59">key 4 · Jamundí</text></g>
+        <g class="a" style="--d:.4s"><circle class="pt" cx="50" cy="96" r="7"/><circle class="pt" cx="73" cy="96" r="7"/><circle class="pt" cx="96" cy="96" r="7"/><text class="s" x="40" y="124">3 compras en Cali · $129.100</text></g>
+        <g class="a" style="--d:1s"><circle class="pt" cx="520" cy="96" r="7"/><text class="s" x="550" y="124" text-anchor="end">compra en Jamundí · $18.900</text></g>
+        <g class="a" style="--d:1.4s">
+          <rect class="node bad" x="10" y="160" width="265" height="150" rx="12"/><text class="t" x="24" y="186">Tipo 1 · sobrescribir</text>
+          <text class="k" x="24" y="218">Cali ........... $0</text><text class="k" x="24" y="242">Jamundí ... $176.200</text><text class="k" x="24" y="266">Palmira .... $43.400</text><text class="s" x="24" y="294">el pasado cambió solo</text></g>
+        <g class="a" style="--d:1.8s">
+          <rect class="node ok" x="285" y="160" width="265" height="150" rx="12"/><text class="t" x="299" y="186">Tipo 2 · versionar</text>
+          <text class="k" x="299" y="218">Cali ..... $129.100</text><text class="k" x="299" y="242">Jamundí ... $47.100</text><text class="k" x="299" y="266">Palmira .... $43.400</text><text class="s" x="299" y="294">cada venta, su ciudad de entonces</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t3" data-label="Medallion">
+      <div class="stext"><span class="schip c-t3">Taller 3 · Data Vault</span><h3>Construir la arquitectura en PostgreSQL</h3>
+        <p>La idea del Taller 1 se vuelve código: tres esquemas, <code>bronze</code>, <code>silver</code> y <code>gold</code>. Llegan <strong>9 archivos CSV en tres lotes</strong> (marzo, junio y septiembre de 2026).</p>
+        <p><strong>Bronze</strong> guarda todo como TEXT con el archivo y la fecha de cada carga: no corrige nada. <strong>Silver</strong> aplica los tipos y versiona. <strong>Gold</strong> sirve la estrella del Taller 2.</p>
+        <p class="learn">Aprendizaje: un solo registro sucio no puede bloquear una carga; los tipos se aplican después.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Tres lotes de CSV atraviesan Bronze, Silver y Gold">
+        <g class="edge"><path d="M108 150 L148 150"/><path d="M268 150 L298 150"/><path d="M418 150 L448 150"/></g>
+        <g class="a" style="--d:.1s"><rect class="node" x="8" y="90" width="100" height="26" rx="6"/><text class="k" x="58" y="108" text-anchor="middle">lote 10 mar</text></g>
+        <g class="a" style="--d:.3s"><rect class="node" x="8" y="122" width="100" height="26" rx="6"/><text class="k" x="58" y="140" text-anchor="middle">lote 2 jun</text></g>
+        <g class="a" style="--d:.5s"><rect class="node" x="8" y="154" width="100" height="26" rx="6"/><text class="k" x="58" y="172" text-anchor="middle">lote 10 sep</text></g>
+        <g class="a" style="--d:.7s"><rect class="node lb" x="148" y="85" width="120" height="130" rx="12"/><text class="t" x="208" y="112" text-anchor="middle">Bronze</text><text class="s" x="208" y="136" text-anchor="middle">todo en TEXT</text><text class="s" x="208" y="154" text-anchor="middle">_archivo · _cargado</text><text class="s" x="208" y="188" text-anchor="middle">no corrige nada</text></g>
+        <g class="a" style="--d:1.1s"><rect class="node ls" x="298" y="85" width="120" height="130" rx="12"/><text class="t" x="358" y="112" text-anchor="middle">Silver</text><text class="s" x="358" y="136" text-anchor="middle">Raw Vault</text><text class="s" x="358" y="154" text-anchor="middle">+ Business Vault</text><text class="s" x="358" y="188" text-anchor="middle">tipos y versiones</text></g>
+        <g class="a" style="--d:1.5s"><rect class="node lg" x="448" y="85" width="102" height="130" rx="12"/><text class="t" x="499" y="112" text-anchor="middle">Gold</text><text class="s" x="499" y="136" text-anchor="middle">4 vistas</text><text class="s" x="499" y="154" text-anchor="middle">estrella</text><text class="s" x="499" y="188" text-anchor="middle">Power BI</text></g>
+        <g class="a" style="--d:2s"><text class="s" x="10" y="270">CALL silver.cargar_lote('2026-06-02')  →  un procedimiento, repetible sin duplicar</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t3" data-label="Hubs, link, satellites">
+      <div class="stext"><span class="schip c-t3">Taller 3 · Data Vault</span><h3>El Vault se arma en tres pasos y en orden</h3>
+        <p><strong>① Hubs:</strong> solo la clave de negocio (cliente, producto, tienda) y su hash. Nada que cambie. <strong>② Link:</strong> la venta une los tres hubs y lleva el ticket: una fila es una línea de ticket, el grano del Taller 2.</p>
+        <p><strong>③ Satellites:</strong> los atributos que cambian, con <code>hash_diff</code>: solo se inserta una versión nueva si algo cambió. Todo con <code>NOT EXISTS</code>, así que cargar dos veces el mismo archivo inserta 0 filas.</p>
+        <p class="learn">Aprendizaje: separar lo que no cambia de lo que sí es lo que permite recordarlo todo.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Orden de carga: hubs, link y satellites">
+        <g class="edge"><path d="M120 76 L260 130"/><path d="M280 76 L280 130"/><path d="M440 76 L300 130"/></g>
+        <g class="a" style="--d:.1s"><circle class="num" cx="18" cy="28" r="13"/><text class="t" x="18" y="33" text-anchor="middle" fill="#fff">1</text></g>
+        <g class="a" style="--d:.2s"><rect class="node hub" x="40" y="26" width="160" height="50" rx="10"/><text class="t" x="52" y="50">hub_cliente</text><text class="s" x="52" y="66">CLI-001 · hash</text></g>
+        <g class="a" style="--d:.4s"><rect class="node hub" x="200" y="26" width="160" height="50" rx="10" transform="translate(0,0)"/><text class="t" x="212" y="50">hub_producto</text><text class="s" x="212" y="66">LEC-1L · hash</text></g>
+        <g class="a" style="--d:.6s"><rect class="node hub" x="360" y="26" width="160" height="50" rx="10"/><text class="t" x="372" y="50">hub_tienda</text><text class="s" x="372" y="66">TN-01 · hash</text></g>
+        <g class="a" style="--d:1.1s"><circle class="num" cx="190" cy="155" r="13"/><text class="t" x="190" y="160" text-anchor="middle" fill="#fff">2</text><rect class="node lnk" x="210" y="130" width="140" height="50" rx="10"/><text class="t" x="222" y="154">link_venta</text><text class="s" x="222" y="170">3 hashes + ticket</text></g>
+        <g class="a" style="--d:1.8s"><circle class="num" cx="18" cy="238" r="13"/><text class="t" x="18" y="243" text-anchor="middle" fill="#fff">3</text></g>
+        <g class="a" style="--d:1.9s"><rect class="node sat" x="40" y="215" width="118" height="56" rx="10"/><text class="t" x="50" y="238">sat_cliente</text><text class="k hl" x="50" y="258">hash_diff</text></g>
+        <g class="a" style="--d:2.1s"><rect class="node sat" x="166" y="215" width="118" height="56" rx="10"/><text class="t" x="176" y="238">sat_venta</text><text class="k hl" x="176" y="258">hash_diff</text></g>
+        <g class="a" style="--d:2.3s"><rect class="node sat" x="292" y="215" width="118" height="56" rx="10"/><text class="t" x="302" y="238">sat_producto</text><text class="k hl" x="302" y="258">hash_diff</text></g>
+        <g class="a" style="--d:2.5s"><rect class="node sat" x="418" y="215" width="118" height="56" rx="10"/><text class="t" x="428" y="238">sat_tienda</text><text class="k hl" x="428" y="258">hash_diff</text></g>
+        <g class="a" style="--d:2.7s"><text class="s" x="40" y="302">insertar solo si cambió · nunca UPDATE</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t3" data-label="Viajar en el tiempo">
+      <div class="stext"><span class="schip c-t3">Taller 3 · Data Vault</span><h3>Lo que un modelo que sobrescribe no puede decir</h3>
+        <p>Con tres lotes cargados, el Vault responde cosas que la estrella no podía: <strong>dónde vivía Ana el 1 de julio</strong> (Bogotá), <strong>por qué V-4021 decía 5 unidades y hoy 4</strong>, y <strong>qué llegó repetido</strong> (V-3311, reenviada en junio y no duplicada).</p>
+        <p>La evidencia sale de unir Silver con Bronze: cada versión sabe de qué archivo y de qué día vino.</p>
+        <p class="learn">Aprendizaje: auditar es posible porque nada se sobrescribe.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Versiones de Ana, de V-4021 y de V-3311 a lo largo de los tres lotes">
+        <text class="s" x="190" y="24" text-anchor="middle">10 mar</text><text class="s" x="330" y="24" text-anchor="middle">2 jun</text><text class="s" x="470" y="24" text-anchor="middle">10 sep</text>
+        <text class="t" x="8" y="62">Ana</text><text class="s" x="8" y="78">sat_cliente_crm</text>
+        <text class="t" x="8" y="152">V-4021</text><text class="s" x="8" y="168">sat_venta_pos</text>
+        <text class="t" x="8" y="242">V-3311</text><text class="s" x="8" y="258">reenvío del POS</text>
+        <g class="a" style="--d:.1s"><rect class="cell" x="130" y="40" width="120" height="50" rx="8"/><text class="k" x="190" y="62" text-anchor="middle">Cali</text><text class="s" x="190" y="78" text-anchor="middle">Premium</text></g>
+        <g class="a" style="--d:.5s"><rect class="cell" x="270" y="40" width="120" height="50" rx="8"/><text class="k" x="330" y="62" text-anchor="middle">Bogotá</text><text class="s" x="330" y="78" text-anchor="middle">Premium</text></g>
+        <g class="a" style="--d:.9s"><rect class="cell hot" x="410" y="40" width="120" height="50" rx="8"/><text class="k" x="470" y="62" text-anchor="middle">Bogotá</text><text class="s" x="470" y="78" text-anchor="middle">Oro</text></g>
+        <g class="a" style="--d:1.2s"><rect class="cell" x="270" y="130" width="120" height="50" rx="8"/><text class="k" x="330" y="152" text-anchor="middle">5 u · $20.500</text><text class="s" x="330" y="168" text-anchor="middle">pos_ventas_0602</text></g>
+        <g class="a" style="--d:1.5s"><rect class="cell hot" x="410" y="130" width="120" height="50" rx="8"/><text class="k" x="470" y="152" text-anchor="middle">4 u · $16.400</text><text class="s" x="470" y="168" text-anchor="middle">pos_ventas_0910</text></g>
+        <g class="a" style="--d:1.8s"><rect class="cell" x="130" y="220" width="120" height="50" rx="8"/><text class="k" x="190" y="242" text-anchor="middle">1 u · $189.000</text><text class="s" x="190" y="258" text-anchor="middle">1.ª carga</text></g>
+        <g class="a" style="--d:2.1s"><rect class="cell ghost" x="270" y="220" width="120" height="50" rx="8"/><text class="k" x="330" y="242" text-anchor="middle">= mismo hash</text><text class="s" x="330" y="258" text-anchor="middle">no inserta nada</text></g>
+        <g class="a" style="--d:2.4s"><text class="s" x="8" y="305">Bronze conserva V-3311 dos veces: ahí queda la evidencia del reenvío</text></g>
+      </svg></figure>
+    </article>
+
+    <article class="sstep" data-ch="t3" data-label="El resultado">
+      <div class="stext"><span class="schip c-t3">Taller 3 · Data Vault</span><h3>La estrella vuelve, ahora con memoria</h3>
+        <p>Gold reconstruye las dimensiones y el hecho como <strong>vistas</strong>, con el SCD tipo 2 calculado con <code>LEAD</code>. Los dos reportes suman lo mismo ($1.380.300), pero responden preguntas distintas.</p>
+        <p>«Ciudad al comprar» es el correcto para mercadeo; «ciudad actual» reescribe las compras de marzo de Ana ($679.000) de Cali a Bogotá.</p>
+        <p><strong>Recomendación:</strong> con 4 personas, Medallion ya, y Vault solo donde hay historia y auditoría (clientes y ventas), con un único procedimiento de carga repetible.</p></div>
+      <figure class="sscene svgfig"><svg viewBox="0 0 560 330" role="img" aria-label="Ventas por ciudad al comprar frente a ciudad actual, para Cali y Bogotá">
+        <g class="edge"><path d="M30 270 L540 270"/></g>
+        <g class="a" style="--d:.2s"><rect class="bar1" x="80" y="127" width="52" height="143" rx="4"/><text class="k" x="106" y="120" text-anchor="middle">$793.300</text></g>
+        <g class="a" style="--d:.5s"><rect class="bar2" x="140" y="250" width="52" height="20" rx="4"/><text class="k" x="166" y="243" text-anchor="middle">$114.300</text></g>
+        <text class="t" x="136" y="294" text-anchor="middle">Cali</text>
+        <g class="a" style="--d:.8s"><rect class="bar1" x="330" y="192" width="52" height="78" rx="4"/><text class="k" x="356" y="185" text-anchor="middle">$434.000</text></g>
+        <g class="a" style="--d:1.1s"><rect class="bar2" x="390" y="70" width="52" height="200" rx="4"/><text class="k" x="416" y="63" text-anchor="middle">$1.113.000</text></g>
+        <text class="t" x="386" y="294" text-anchor="middle">Bogotá</text>
+        <g class="a" style="--d:1.5s"><rect class="bar1" x="30" y="308" width="12" height="12" rx="3"/><text class="s" x="48" y="318">ciudad al comprar</text><rect class="bar2" x="190" y="308" width="12" height="12" rx="3"/><text class="s" x="208" y="318">ciudad actual</text><text class="s" x="340" y="318">mismo total: $1.380.300</text></g>
+      </svg></figure>
+    </article>
+
+    </div>
+    <div class="sctl">
+      <button type="button" id="sprev" class="btn">← Anterior</button>
+      <span class="scount" id="scount" aria-live="polite"></span>
+      <button type="button" id="snext" class="btn primary">Siguiente →</button>
+    </div>
+    <div class="sbar"><i id="sbar"></i></div>
+  </div>
+</section>
+
+<section id="hilo">
+  <div class="eyebrow">El hilo conductor</div>
+  <h2>Cada taller concreta la decisión del anterior</h2>
+  <p>El proyecto no son tres ejercicios sueltos: lo que el comité recomendó en la Semana 1 es lo que luego se modeló y se programó. Toca cada fila para ver la conexión.</p>
+  <div class="tw"><table class="thread"><thead><tr><th>Idea</th><th>Taller 1 · decidir</th><th>Taller 2 · modelar</th><th>Taller 3 · construir</th></tr></thead><tbody>
+    <tr><th scope="row">Guardar todo, crudo</th><td>Bronce crudo e inmutable; se carga primero y se transforma después (ELT).</td><td>Grano más fino: una fila por línea de ticket, desde donde se puede agregar a todo.</td><td><code>bronze.*</code>: todo en TEXT, con <code>_archivo</code> y <code>_cargado</code> en cada fila.</td></tr>
+    <tr><th scope="row">Limpiar y gobernar</th><td>Capa plata con reglas de calidad (fechas, tiendas, duplicados).</td><td>Claves subrogadas y dimensiones sin texto repetido.</td><td>Raw Vault (hubs, link, satellites) y Business Vault con <code>initcap(trim(ciudad))</code>.</td></tr>
+    <tr><th scope="row">Servir al negocio</th><td>Capa oro para Power BI confiable.</td><td>Estrella: <code>fact_ventas</code> + 4 dimensiones.</td><td><code>gold.*</code>: cuatro vistas que reconstruyen la estrella desde el Vault.</td></tr>
+    <tr><th scope="row">Recordar el pasado</th><td>Los reportes de ayer no deben cambiar solos.</td><td>SCD tipo 2 en <code>dim_cliente</code>.</td><td>Satellites con <code>hash_diff</code>: cada cambio es una versión nueva, nada se sobrescribe.</td></tr>
+    <tr><th scope="row">Equipo de 4 personas</th><td>No operar lo que no se puede sostener (sin Mesh hoy).</td><td>Estrella simple para los analistas; copo de nieve solo cuando el catálogo lo pida.</td><td>Medallion ya; Vault solo donde hay historia y auditoría; un único procedimiento de carga.</td></tr>
+  </tbody></table></div>
+</section>
+
+<div class="part" id="t1">
+  <div class="pn">Taller 1 · Semana 1</div>
+  <h2>Arquitectura y ciclo de vida del dato</h2>
+  <p>Rol simulado: <strong>Arquitecto de Datos</strong>. Pregunta guía: ¿cómo debería organizar RetailNova sus datos para crecer?</p>
+</div>
+
+<section id="t1-resumen">
+  <div class="eyebrow">Recomendación del comité</div>
+  <h2>Cómo debería organizar RetailNova sus datos para crecer</h2>
+  <p><strong>Empezar con el Data Warehouse que ya tiene, pasar a un Lakehouse con ingesta híbrida en el Año 2 y evolucionar hacia un Data Mesh cuando la empresa tenga el tamaño para operarlo.</strong></p>
   <div class="kpis">
     <div class="kpi"><b>12</b>tiendas en el Valle del Cauca</div>
     <div class="kpi"><b>15</b>fuentes de datos clasificadas</div>
@@ -228,14 +718,437 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
   <ul><li>Más piezas que operar con un equipo pequeño</li><li>Reconciliar dos rutas</li><li>Riesgo de cifras divergentes entre ellas</li></ul>
 </section>
 
+<div class="part" id="t2">
+  <div class="pn">Taller 2 · Semana 2</div>
+  <h2>El modelo de ventas: esquema estrella y copo de nieve</h2>
+  <p>Rol simulado: <strong>Modelador de Datos</strong>. Se rediseña la tabla plana <code>ventas_planas</code> como un modelo dimensional que responde las cuatro quejas de la líder de datos.</p>
+  <div class="complaints">
+    <span>«Los reportes tardan minutos»</span><span>«Al mudarse un cliente, el pasado cambia»</span><span>«Sumaron inventario de 7 días: 2.000 cafés»</span><span>«No hay ventas por marca y país»</span>
+  </div>
+</div>
+
+<section id="t2-tarjetas">
+  <div class="eyebrow">Actividad 1</div>
+  <h2>¿Hecho o dimensión?</h2>
+  <p>Regla: si es un número que tiene sentido <strong>sumar</strong>, es un hecho; si sirve para <strong>filtrar o agrupar</strong>, es una dimensión. Filtra las 18 tarjetas por columna del pliego.</p>
+  <div class="chips" id="cardfilter" role="group" aria-label="Filtrar tarjetas">
+    <button type="button" class="chip on" data-f="all">Todas · 18</button>
+    <button type="button" class="chip" data-f="hecho">Métricas · 5</button>
+    <button type="button" class="chip" data-f="cliente">dim_cliente · 4</button>
+    <button type="button" class="chip" data-f="producto">dim_producto · 2</button>
+    <button type="button" class="chip" data-f="tienda">dim_tienda · 3</button>
+    <button type="button" class="chip" data-f="fecha">dim_fecha · 2</button>
+    <button type="button" class="chip" data-f="otro">¿Otro? · 2</button>
+  </div>
+  <div class="cards18" id="cards18">
+    <div class="tcard" data-c="hecho"><i>1</i>Cantidad de unidades vendidas<b>Métrica</b></div>
+    <div class="tcard" data-c="hecho"><i>2</i>Monto total de la línea<b>Métrica</b></div>
+    <div class="tcard" data-c="hecho"><i>3</i>Descuento aplicado (pesos)<b>Métrica</b></div>
+    <div class="tcard" data-c="hecho"><i>4</i>Precio unitario<b>Métrica · no aditiva</b></div>
+    <div class="tcard" data-c="cliente"><i>5</i>Nombre del cliente<b>dim_cliente</b></div>
+    <div class="tcard" data-c="cliente"><i>6</i>Ciudad del cliente<b>dim_cliente</b></div>
+    <div class="tcard" data-c="cliente"><i>7</i>Segmento (Oro, Plata, Bronce)<b>dim_cliente</b></div>
+    <div class="tcard" data-c="cliente"><i>8</i>Edad del cliente<b>dim_cliente · atributo</b></div>
+    <div class="tcard" data-c="producto"><i>9</i>Marca del producto<b>dim_producto</b></div>
+    <div class="tcard" data-c="producto"><i>10</i>Categoría del producto<b>dim_producto</b></div>
+    <div class="tcard" data-c="tienda"><i>11</i>Nombre de la tienda<b>dim_tienda</b></div>
+    <div class="tcard" data-c="tienda"><i>12</i>Región comercial<b>dim_tienda</b></div>
+    <div class="tcard" data-c="tienda"><i>13</i>Metros cuadrados de la tienda<b>dim_tienda · atributo</b></div>
+    <div class="tcard" data-c="fecha"><i>14</i>Día de la semana<b>dim_fecha</b></div>
+    <div class="tcard" data-c="fecha"><i>15</i>¿Era festivo ese día?<b>dim_fecha</b></div>
+    <div class="tcard" data-c="otro"><i>16</i>Número del ticket<b>Dimensión degenerada</b></div>
+    <div class="tcard" data-c="otro"><i>17</i>Cajero que atendió<b>dim_cajero (nueva)</b></div>
+    <div class="tcard" data-c="hecho"><i>18</i>Puntos Nova ganados<b>Métrica · aditiva</b></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h4>Las dudosas</h4><p class="small">La <strong>edad</strong> y los <strong>metros cuadrados</strong> son números, pero nadie los suma: se usan para filtrar (rangos de edad, tiendas de más de 500 m²). Son atributos de dimensión. El <strong>precio unitario</strong> vive en el hecho porque varía con las promociones, pero no se suma.</p></div>
+    <div class="card"><h4>Ticket y cajero</h4><p class="small">El <strong>ticket</strong> no tiene atributos propios: queda como dimensión degenerada dentro de <code>fact_ventas</code>. El <strong>cajero</strong> sí los tiene (nombre, turno, tienda base); se propone <code>dim_cajero</code>, fuera de la estrella porque el Anexo B no trae ese dato.</p></div>
+  </div>
+</section>
+
+<section id="t2-grano">
+  <div class="eyebrow">Actividad 2</div>
+  <h2>El grano primero</h2>
+  <p>Una fila de <code>fact_ventas</code> representa <strong>un producto dentro de un ticket</strong> (una línea). Es la única opción que responde las tres preguntas.</p>
+  <div class="tw"><table class="matrix"><thead><tr><th>Opción de grano</th><th>P1 · unidades de café por tienda en mayo</th><th>P2 · valor promedio del ticket por tienda</th><th>P3 · ¿qué día se vende más?</th></tr></thead><tbody>
+    <tr><th scope="row">A · Un ticket completo</th><td class="sc s1">No</td><td class="sc s4">Sí</td><td class="sc s4">Sí</td></tr>
+    <tr class="pick"><th scope="row">B · Un producto dentro de un ticket <span class="star">★</span></th><td class="sc s5 best">Sí</td><td class="sc s5 best">Sí</td><td class="sc s5 best">Sí</td></tr>
+    <tr><th scope="row">C · Total de un producto por tienda y día</th><td class="sc s4">Sí</td><td class="sc s1">No</td><td class="sc s4">Sí</td></tr>
+  </tbody></table></div>
+  <div class="grid2">
+    <div class="card"><h4>¿Por qué el grano más fino?</h4><p class="small">Desde él se puede agregar a cualquier nivel (ticket, día, tienda, mes), pero un total nunca se desagrega hacia abajo. Cuesta volumen: con 1,2 millones de compras al mes, más filas y más almacenamiento; se compensa con índices, particiones y agregados.</p></div>
+    <div class="card"><h4>Ya estaba ahí</h4><p class="small">La tabla cruda ya venía en este grano (el ticket T-2001 aparece dos veces: café y leche). El problema no era el grano: era que repetía cliente, producto y tienda en cada fila.</p></div>
+  </div>
+</section>
+
+<section id="t2-estrella">
+  <div class="eyebrow">Actividad 3</div>
+  <h2>De la tabla plana a la estrella</h2>
+  <p>Cada entidad aparece una sola vez con una clave subrogada. El ticket queda en el hecho como dimensión degenerada; la clave primaria es <code>(ticket, producto_key)</code>.</p>
+  <figure class="diag svgfig" aria-label="Esquema estrella de RetailNova">
+  <svg viewBox="0 0 880 420" role="img" aria-labelledby="starT starD">
+    <title id="starT">Esquema estrella de RetailNova</title>
+    <desc id="starD">fact_ventas en el centro unida a dim_cliente, dim_producto, dim_tienda y dim_fecha; dim_cajero aparece punteada como propuesta.</desc>
+    <g class="edge"><path d="M440 210 L170 75"/><path d="M440 210 L710 75"/><path d="M440 210 L170 345"/><path d="M440 210 L710 345"/><path class="dash" d="M440 280 L440 365"/></g>
+    <g transform="translate(300,140)"><rect class="node fact" width="280" height="140" rx="14"/><text class="t" x="140" y="28" text-anchor="middle">fact_ventas</text><text class="s" x="140" y="46" text-anchor="middle">grano: línea de ticket</text>
+      <text class="k" x="18" y="72">fecha_key · cliente_key</text><text class="k" x="18" y="90">producto_key · tienda_key</text><text class="k" x="18" y="108">ticket (dim. degenerada)</text><text class="k" x="18" y="126">cantidad · precio_unit · monto</text></g>
+    <g transform="translate(40,30)"><rect class="node" width="260" height="90" rx="12"/><text class="t" x="14" y="26">dim_cliente</text><text class="k" x="14" y="46">cliente_key · cliente_id</text><text class="k" x="14" y="64">nombre · ciudad</text><text class="k hl" x="14" y="82">fecha_inicio · fecha_fin · vigente (SCD 2)</text></g>
+    <g transform="translate(580,30)"><rect class="node" width="260" height="90" rx="12"/><text class="t" x="14" y="26">dim_producto</text><text class="k" x="14" y="46">producto_key</text><text class="k" x="14" y="64">nombre · categoría</text><text class="s" x="14" y="82">estrella hoy → copo de nieve en el Año 2</text></g>
+    <g transform="translate(40,300)"><rect class="node" width="260" height="90" rx="12"/><text class="t" x="14" y="26">dim_tienda</text><text class="k" x="14" y="46">tienda_key</text><text class="k" x="14" y="64">nombre</text></g>
+    <g transform="translate(580,300)"><rect class="node" width="260" height="90" rx="12"/><text class="t" x="14" y="26">dim_fecha</text><text class="k" x="14" y="46">fecha_key (AAAAMMDD) · fecha</text><text class="k" x="14" y="64">día · mes · año · es_festivo</text></g>
+    <g transform="translate(340,365)"><rect class="node ghost" width="200" height="44" rx="10"/><text class="s" x="100" y="26" text-anchor="middle">dim_cajero · propuesta</text></g>
+  </svg>
+  <figcaption>Esquema estrella · una tabla de hechos y cuatro dimensiones. La dimensión de cajero se propone pero queda fuera: el Anexo B no trae ese dato.</figcaption></figure>
+  <h3>fact_ventas · una fila por línea de ticket</h3>
+  <div class="tw"><table class="nw"><thead><tr><th>fecha_key</th><th>cliente_key</th><th>producto_key</th><th>tienda_key</th><th>ticket</th><th>cantidad</th><th>precio_unit</th><th>monto</th></tr></thead><tbody>
+    <tr><td>20260504</td><td>1</td><td>1</td><td>1</td><td>T-2001</td><td>2</td><td>18.900</td><td>37.800</td></tr>
+    <tr><td>20260504</td><td>1</td><td>2</td><td>1</td><td>T-2001</td><td>6</td><td>3.900</td><td>23.400</td></tr>
+    <tr><td>20260504</td><td>2</td><td>3</td><td>2</td><td>T-2002</td><td>1</td><td>24.500</td><td>24.500</td></tr>
+    <tr><td>20260505</td><td>1</td><td>1</td><td>1</td><td>T-2003</td><td>1</td><td>18.900</td><td>18.900</td></tr>
+    <tr><td>20260505</td><td>3</td><td>2</td><td>3</td><td>T-2004</td><td>4</td><td>3.900</td><td>15.600</td></tr>
+    <tr><td>20260505</td><td>3</td><td>4</td><td>3</td><td>T-2004</td><td>3</td><td>4.200</td><td>12.600</td></tr>
+    <tr><td>20260506</td><td>2</td><td>1</td><td>2</td><td>T-2005</td><td>1</td><td>18.900</td><td>18.900</td></tr>
+    <tr><td>20260506</td><td>1</td><td>3</td><td>1</td><td>T-2006</td><td>2</td><td>24.500</td><td>49.000</td></tr>
+  </tbody></table></div>
+  <details class="code"><summary>Ver el DDL en PostgreSQL</summary>
+<pre><code>CREATE TABLE dim_cliente (
+  cliente_key  INT PRIMARY KEY,
+  cliente_id   VARCHAR(20) NOT NULL,
+  nombre       VARCHAR(100) NOT NULL,
+  ciudad       VARCHAR(60)  NOT NULL,
+  fecha_inicio DATE NOT NULL,                     -- SCD tipo 2
+  fecha_fin    DATE NOT NULL DEFAULT '9999-12-31',
+  vigente      BOOLEAN NOT NULL DEFAULT TRUE
+);
+CREATE TABLE fact_ventas (
+  fecha_key    INT NOT NULL REFERENCES dim_fecha,
+  cliente_key  INT NOT NULL REFERENCES dim_cliente,
+  producto_key INT NOT NULL REFERENCES dim_producto,
+  tienda_key   INT NOT NULL REFERENCES dim_tienda,
+  ticket       VARCHAR(20) NOT NULL,              -- dimensión degenerada
+  cantidad     INT NOT NULL,
+  precio_unit  NUMERIC(12,2) NOT NULL,
+  monto        NUMERIC(12,2) NOT NULL,
+  PRIMARY KEY (ticket, producto_key)
+);</code></pre></details>
+  <p class="small muted">Se ejecutó en PostgreSQL para comprobar claves y respuestas: ticket promedio por tienda de $43.033 en Cali Norte, $28.200 en Jamundí y $21.700 en Palmira con las ventas del 4 al 6 de mayo.</p>
+</section>
+
+<section id="t2-copo">
+  <div class="eyebrow">Actividad 4</div>
+  <h2>¿Estrella o copo de nieve?</h2>
+  <p>La respuesta cambia con el momento de la empresa, igual que la arquitectura en el Taller 1.</p>
+  <div role="tablist" aria-label="Escenarios del modelo"><button role="tab" aria-selected="true" data-tab="copoHoy">Hoy · 3.000 productos</button><button role="tab" aria-selected="false" data-tab="copoA2">Año 2 · marketplace de 400.000</button></div>
+  <div role="tabpanel" id="copoHoy">
+    <div class="vs"><div><h3>Estrella</h3><p><code>dim_producto</code> plana, con categoría, departamento, marca y país en la misma fila.</p><ol class="stages"><li><strong>Facilidad para BI:</strong> una sola tabla, sin cadenas de joins que los analistas de tienda no dominan.</li><li><strong>Rendimiento:</strong> un solo join por consulta.</li><li><strong>El espacio no importa:</strong> repetir textos en 3.000 filas es insignificante.</li></ol></div>
+    <div class="card"><h4>Por qué aquí</h4><p class="small">Los analistas arman sus reportes en Power BI y se confunden con muchas tablas. Con un catálogo pequeño y una jerarquía que casi no cambia, la simplicidad gana.</p></div></div>
+  </div>
+  <div role="tabpanel" id="copoA2" hidden>
+    <div class="vs"><div><h3>Copo de nieve</h3><p><code>dim_producto</code> normalizada en <code>dim_categoria</code>, <code>dim_departamento</code>, <code>dim_marca</code> y <code>dim_pais</code>.</p><ol class="stages"><li><strong>Frecuencia de cambio:</strong> mover una categoría de departamento es corregir una fila, no miles.</li><li><strong>Espacio y consistencia:</strong> el país de una marca se guarda una vez, no 400.000, y no puede contradecirse.</li><li><strong>Costo:</strong> más joins, que se mitigan con una vista plana para BI.</li></ol></div>
+    <div class="card"><h4>Datos del Anexo D</h4><div class="snow">
+      <div><b>dim_departamento</b>Mercado · Hogar</div>
+      <div><b>dim_categoria</b>Despensa, Lácteos → Mercado<br>Aseo, Electro pequeño → Hogar</div>
+      <div><b>dim_marca</b>Sierra Alta, Nova, Pradera → Colombia<br>Brillo → México · Volta → China</div>
+      <div><b>dim_pais</b>Colombia · México · China</div></div></div></div>
+  </div>
+</section>
+
+<section id="t2-scd">
+  <div class="eyebrow">Actividad 5</div>
+  <h2>La clienta que se mudó</h2>
+  <p>Ana se muda de Cali a Jamundí el 20 de mayo. Cambia el tipo de SCD y mira qué le pasa al reporte de mercadeo.</p>
+  <div class="seg" role="radiogroup" aria-label="Tipo de SCD" id="scdseg"><button type="button" role="radio" aria-checked="false" data-scd="1">Tipo 1 · sobrescribir</button><button type="button" role="radio" aria-checked="true" data-scd="2">Tipo 2 · versionar</button></div>
+  <div class="grid2 scdgrid">
+    <div><h4>dim_cliente</h4><div class="tw"><table class="nw" id="scdtable"><thead><tr><th>key</th><th>cliente_id</th><th>nombre</th><th>ciudad</th><th>desde</th><th>hasta</th><th>vigente</th></tr></thead><tbody></tbody></table></div></div>
+    <div><h4>Ventas de mayo según la ciudad del cliente</h4><div class="tw"><table class="nw" id="scdres"><thead><tr><th>Ciudad</th><th>Ventas (COP)</th></tr></thead><tbody></tbody></table></div><p class="small" id="scdnote"></p></div>
+  </div>
+  <p class="small muted">En ambos casos el total de mayo es $219.600: lo que cambia es <em>a qué ciudad</em> se le atribuye. Con tipo 1 el reporte histórico cambia solo: esa es exactamente la queja de mercadeo.</p>
+  <h3>Qué tipo de SCD para cada caso</h3>
+  <div class="tw"><table><thead><tr><th>Caso</th><th>Tipo</th><th>Justificación</th></tr></thead><tbody>
+    <tr><td>A · Ana se muda de Cali a Jamundí</td><td><span class="pill p-t2">Tipo 2</span></td><td>Mercadeo quiere las ventas según dónde vivía cuando compró: se conserva la fila antigua y se crea otra con fechas de vigencia.</td></tr>
+    <tr><td>B · «Luis Mejia» se corrige a «Luis Mejía»</td><td><span class="pill p-t1">Tipo 1</span></td><td>Es la corrección de un error: nadie quiere la versión errónea, se sobrescribe sin historia.</td></tr>
+    <tr><td>C · Palmira pasa de «Valle Centro» a «Valle Sur»</td><td><span class="pill p-t3">Tipo 3</span></td><td>La gerencia compara cada tienda contra su región actual y la anterior en la misma fila: columnas <code>region_actual</code> y <code>region_anterior</code>.</td></tr>
+    <tr><td>D · «Arroz Nova 1 kg» pasa de «Despensa» a «Marca propia»</td><td><span class="pill p-t2">Depende</span></td><td>Tipo 2 por defecto, para que el reporte de Despensa de 2025 no cambie solo; tipo 1 si la reorganización es solo de nombres; tipo 3 si solo se compara antes y después.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="t2-aditivas">
+  <div class="eyebrow">Actividad 6</div>
+  <h2>¿Se puede sumar?</h2>
+  <div class="tw"><table><thead><tr><th>Métrica</th><th>Clasificación</th><th>¿Cómo se agrega bien?</th></tr></thead><tbody>
+    <tr><td>Monto total de la venta</td><td><span class="pill p-ad">Aditiva</span></td><td>Se suma por cualquier dimensión.</td></tr>
+    <tr><td>Cantidad de unidades vendidas</td><td><span class="pill p-ad">Aditiva</span></td><td>Se suma; solo entre productos con la misma unidad.</td></tr>
+    <tr><td>Descuento aplicado (pesos)</td><td><span class="pill p-ad">Aditiva</span></td><td>Se suma por cualquier dimensión.</td></tr>
+    <tr><td>Precio unitario</td><td><span class="pill p-na">No aditiva</span></td><td><code>SUM(monto) / SUM(cantidad)</code> (promedio ponderado).</td></tr>
+    <tr><td>Inventario al cierre del día</td><td><span class="pill p-sa">Semi-aditiva</span></td><td>Se suma entre tiendas y productos, pero no en el tiempo: cierre o promedio.</td></tr>
+    <tr><td>Saldo de Puntos Nova</td><td><span class="pill p-sa">Semi-aditiva</span></td><td>Se suma entre clientes en una fecha, no entre fechas.</td></tr>
+    <tr><td>Porcentaje de margen</td><td><span class="pill p-na">No aditiva</span></td><td>Se recalcula: <code>SUM(margen $) / SUM(ventas $)</code>.</td></tr>
+    <tr><td>Valor del ticket promedio</td><td><span class="pill p-na">No aditiva</span></td><td><code>SUM(monto) / COUNT(DISTINCT ticket)</code>.</td></tr>
+    <tr><td>Clientes distintos que compraron</td><td><span class="pill p-na">No aditiva</span></td><td><code>COUNT(DISTINCT cliente)</code>; los subtotales no se suman.</td></tr>
+  </tbody></table></div>
+  <div class="trap">
+    <h4>La trampa del inventario: 2.000 cafés que nunca existieron</h4>
+    <p>Una foto de lo que hay en el estante no es un flujo. Arrastra el día y mira qué se debe reportar.</p>
+    <div class="invrow" id="invrow">
+      <label><span>Lunes</span><b>120</b></label><label><span>Martes</span><b>95</b></label><label><span>Miércoles</span><b>80</b></label>
+    </div>
+    <div class="invout"><div><small>Suma (incorrecta)</small><b class="bad">295</b></div><div><small>Cierre (último día)</small><b>80</b></div><div><small>Promedio diario</small><b>98</b></div></div>
+    <p class="small">Las mismas unidades se cuentan varias veces. Se reporta una sola cifra —el cierre o el promedio— diciendo cuál se usó.</p>
+  </div>
+</section>
+
+<section id="t2-cierre">
+  <div class="eyebrow">Cierre del Taller 2</div>
+  <h2>Cada queja tiene respuesta en el diseño</h2>
+  <div class="grid4">
+    <div class="card q-card"><p class="small muted">Analistas</p><h4>«Los reportes tardan minutos y cada uno escribe la consulta a su manera»</h4><p class="small">Estrella con grano único y claves subrogadas: joins sencillos y siempre iguales, métricas definidas una sola vez.</p></div>
+    <div class="card q-card"><p class="small muted">Mercadeo</p><h4>«Al mudarse un cliente, las ventas de meses anteriores aparecen en su ciudad nueva»</h4><p class="small">SCD tipo 2 en <code>dim_cliente</code>: cada venta queda ligada a la versión vigente el día de la compra.</p></div>
+    <div class="card q-card"><p class="small muted">Gerencia de tiendas</p><h4>«Sumaron el inventario de siete días y reportaron 2.000 unidades»</h4><p class="small">Se clasifica como semi-aditiva: no se suma en el tiempo; idealmente en una tabla de hechos de inventario aparte.</p></div>
+    <div class="card q-card"><p class="small muted">Compras</p><h4>«Necesitamos ventas por marca y por país de origen»</h4><p class="small">Marca y país en <code>dim_producto</code> (estrella) o en <code>dim_marca</code> y <code>dim_pais</code> (copo de nieve) cuando el catálogo crezca.</p></div>
+  </div>
+  <p class="callout">Una pregunta queda abierta para el Taller 3: <strong>el SCD tipo 2 solo recuerda lo que alguien diseñó recordar</strong>. ¿Y si queremos saber qué dijo cada archivo, cuándo llegó y qué se corrigió después?</p>
+</section>
+
+<div class="part" id="t3">
+  <div class="pn">Taller 3 · Semana 3</div>
+  <h2>Data Vault 2.0 y arquitectura Medallion en PostgreSQL</h2>
+  <p>Rol simulado: <strong>Ingeniero de Datos</strong>. Base <code>retailnova_dv</code> en PostgreSQL 14+ (con Docker y pgAdmin 4), tres esquemas y <strong>tres lotes de archivos</strong> que llegan en marzo, junio y septiembre de 2026.</p>
+</div>
+
+<section id="t3-medallion">
+  <div class="eyebrow">Partes 0 y 1</div>
+  <h2>Medallion: tres capas, tres esquemas</h2>
+  <p>La capa bronce, plata y oro que el comité recomendó en el Taller 1 ahora existe como <code>CREATE SCHEMA bronze; silver; gold;</code>.</p>
+  <div class="flow" id="medflow">
+    <div class="fnode"><small>Origen</small><b>9 archivos CSV</b><span>CRM, ERP y POS en tres lotes</span></div>
+    <div class="farrow" aria-hidden="true">→</div>
+    <div class="fnode fb"><small>Bronze</small><b>Aterrizaje</b><span>4 tablas, todo en <code>TEXT</code> + <code>_archivo</code> y <code>_cargado</code></span></div>
+    <div class="farrow" aria-hidden="true">→</div>
+    <div class="fnode fs"><small>Silver</small><b>Data Vault</b><span>3 hubs · 1 link · 4 satellites + vista del Business Vault</span></div>
+    <div class="farrow" aria-hidden="true">→</div>
+    <div class="fnode fg"><small>Gold</small><b>Estrella en vistas</b><span><code>dim_cliente</code>, <code>dim_producto</code>, <code>dim_tienda</code>, <code>fact_ventas</code></span></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h4>¿Por qué todo es TEXT en Bronze?</h4><p class="small">Un texto nunca se rechaza. Si <code>precio</code> fuera <code>NUMERIC</code> y llegara «$3.900» —como en el Taller 1—, el <code>COPY</code> fallaría y el archivo completo no entraría: una sola fila sucia bloquearía la carga y se perdería la evidencia del dato original. Los tipos se aplican en Silver, donde ya se puede decidir qué hacer con cada caso.</p></div>
+    <div class="card"><h4>Un truco para no tocar filas</h4><p class="small">Dos variables de sesión (<code>taller.lote</code> y <code>taller.archivo</code>) alimentan el <code>DEFAULT</code> de las columnas de control. Cada fila queda marcada con su archivo y su fecha de lote al cargarse, sin ningún <code>UPDATE</code> posterior.</p></div>
+  </div>
+  <details class="code"><summary>Ver el bloque de carga del lote 1</summary>
+<pre><code>SET taller.lote = '2026-03-10';
+SET taller.archivo = 'crm_clientes_20260310.csv';
+COPY bronze.crm_clientes (cliente_id, nombre, ciudad, segmento)
+  FROM '/tmp/taller_dv/crm_clientes_20260310.csv'
+  WITH (FORMAT csv, HEADER, ENCODING 'UTF8');
+-- ... igual para erp_productos, erp_tiendas y pos_ventas
+-- Resultado esperado: COPY 5, COPY 6, COPY 4 y COPY 8</code></pre></details>
+  <p class="small muted">Detalle sutil: Sofía Lara llega con la ciudad «cali» en minúscula. En Bronze se queda así, porque Bronze no corrige nada.</p>
+</section>
+
+<section id="t3-vault">
+  <div class="eyebrow">Parte 2</div>
+  <h2>El Raw Vault: hubs, link y satellites</h2>
+  <p>El orden de carga importa: primero los <strong>hubs</strong> (lo que no cambia), después el <strong>link</strong> (cómo se relacionan) y al final los <strong>satellites</strong> (lo que cambia). Toca una pieza para ver qué guarda.</p>
+  <figure class="diag svgfig" aria-label="Diagrama del Raw Vault de RetailNova">
+  <svg viewBox="0 0 900 440" role="img" aria-labelledby="dvT dvD" id="vaultsvg">
+    <title id="dvT">Raw Vault de RetailNova</title>
+    <desc id="dvD">Tres hubs (cliente, producto, tienda) unidos por el link de ventas; cada uno con su satellite descriptivo, y un satellite propio para el link.</desc>
+    <g class="edge"><path d="M230 215 L350 220"/><path d="M450 100 L450 185"/><path d="M670 215 L550 220"/><path class="dash" d="M130 255 L130 330"/><path class="dash" d="M550 60 L620 60"/><path class="dash" d="M770 255 L770 330"/><path class="dash" d="M450 255 L450 330"/></g>
+    <g class="pick hubn" tabindex="0" role="button" data-k="hub_cliente" transform="translate(30,175)"><rect class="node hub" width="200" height="80" rx="12"/><text class="t" x="14" y="26">hub_cliente</text><text class="k" x="14" y="46">hash key · cliente_id</text><text class="k" x="14" y="64">load_date · record_source</text></g>
+    <g class="pick hubn" tabindex="0" role="button" data-k="hub_producto" transform="translate(350,20)"><rect class="node hub" width="200" height="80" rx="12"/><text class="t" x="14" y="26">hub_producto</text><text class="k" x="14" y="46">hash key · producto_id</text><text class="k" x="14" y="64">load_date · record_source</text></g>
+    <g class="pick hubn" tabindex="0" role="button" data-k="hub_tienda" transform="translate(670,175)"><rect class="node hub" width="200" height="80" rx="12"/><text class="t" x="14" y="26">hub_tienda</text><text class="k" x="14" y="46">hash key · tienda_id</text><text class="k" x="14" y="64">load_date · record_source</text></g>
+    <g class="pick linkn" tabindex="0" role="button" data-k="link_venta" transform="translate(350,185)"><rect class="node lnk" width="200" height="70" rx="12"/><text class="t" x="14" y="26">link_venta</text><text class="k" x="14" y="46">3 hash keys + ticket</text><text class="k" x="14" y="62">load_date · record_source</text></g>
+    <g class="pick satn" tabindex="0" role="button" data-k="sat_cliente_crm" transform="translate(30,330)"><rect class="node sat" width="200" height="90" rx="12"/><text class="t" x="14" y="26">sat_cliente_crm</text><text class="k" x="14" y="46">nombre · ciudad · segmento</text><text class="k hl" x="14" y="64">hash_diff</text><text class="s" x="14" y="82">PK (hash key, load_date)</text></g>
+    <g class="pick satn" tabindex="0" role="button" data-k="sat_producto_erp" transform="translate(620,20)"><rect class="node sat" width="250" height="80" rx="12"/><text class="t" x="14" y="26">sat_producto_erp</text><text class="k" x="14" y="46">nombre · cat. · marca · precio</text><text class="k hl" x="14" y="64">hash_diff</text></g>
+    <g class="pick satn" tabindex="0" role="button" data-k="sat_tienda_erp" transform="translate(670,330)"><rect class="node sat" width="200" height="90" rx="12"/><text class="t" x="14" y="26">sat_tienda_erp</text><text class="k" x="14" y="46">nombre · ciudad · región</text><text class="k hl" x="14" y="64">hash_diff</text></g>
+    <g class="pick satn" tabindex="0" role="button" data-k="sat_venta_pos" transform="translate(350,330)"><rect class="node sat" width="200" height="90" rx="12"/><text class="t" x="14" y="26">sat_venta_pos</text><text class="k" x="14" y="46">fecha · cant. · precio · monto</text><text class="k hl" x="14" y="64">hash_diff</text></g>
+  </svg>
+  <figcaption id="vaultcap">Raw Vault · 3 hubs, 1 link y 4 satellites. <span class="hint">Selecciona una pieza.</span></figcaption></figure>
+  <div class="grid4">
+    <div class="card"><span class="dot hub"></span><h4>Hub</h4><p class="small">Solo la clave de negocio, su hash, la fecha de carga y el sistema de origen. Nada que pueda cambiar.</p></div>
+    <div class="card"><span class="dot lnk"></span><h4>Link</h4><p class="small">Una relación única entre hubs. El ticket es clave dependiente: cada fila es una <em>línea de ticket</em>, el grano del Taller 2.</p></div>
+    <div class="card"><span class="dot sat"></span><h4>Satellite</h4><p class="small">Los atributos descriptivos y su historia. Una fila por versión, nunca <code>UPDATE</code>: la clave es (hash key, fecha de carga).</p></div>
+    <div class="card"><span class="dot hd"></span><h4>hash_diff</h4><p class="small">Un <code>md5</code> de los atributos. Solo se inserta una versión nueva si el hash cambió (<code>IS DISTINCT FROM</code>).</p></div>
+  </div>
+  <h3>Dos ideas que hacen el modelo confiable</h3>
+  <div class="grid2">
+    <div class="card"><h4>Normalizar antes de hashear</h4><p class="small">Si un sistema envía «cli-001» y otro «CLI-001» sin <code>upper(trim())</code>, los hashes son distintos (<code>ea57e756…</code> frente a <code>1b67f5fd…</code>) y el hub crearía dos clientes para la misma persona: el historial de Ana se partiría en dos y el conteo de clientes saldría inflado.</p></div>
+    <div class="card"><h4>Idempotencia con NOT EXISTS</h4><p class="small">Ejecutar de nuevo la carga del hub insertó <strong>0 filas</strong>: <code>NOT EXISTS</code> (con la clave <code>UNIQUE</code> como segunda barrera) lo evitó. Si el proceso nocturno falla a medias o llega el mismo archivo dos veces, se reejecuta sin limpiar nada a mano.</p></div>
+  </div>
+  <details class="code"><summary>Ver el patrón «insertar solo si cambió» de un satellite</summary>
+<pre><code>INSERT INTO silver.sat_cliente_crm
+SELECT n.hk, n._cargado, n.hd, n.nombre, n.ciudad, n.segmento, 'CRM'
+FROM (SELECT DISTINCT
+        md5(upper(trim(cliente_id)))                        AS hk,
+        md5(upper(concat_ws(';', nombre, ciudad, segmento))) AS hd,
+        nombre, ciudad, segmento, _cargado
+      FROM bronze.crm_clientes
+      WHERE _cargado = '2026-03-10') n
+LEFT JOIN LATERAL (SELECT s.hash_diff FROM silver.sat_cliente_crm s
+                   WHERE s.hub_cliente_key = n.hk
+                   ORDER BY s.load_date DESC LIMIT 1) ult ON true
+WHERE ult.hash_diff IS DISTINCT FROM n.hd;</code></pre></details>
+</section>
+
+<section id="t3-lotes">
+  <div class="eyebrow">Parte 3</div>
+  <h2>Un procedimiento, tres lotes</h2>
+  <p>Los ocho <code>INSERT</code> (hubs → link → satellites) se guardan en <code>silver.cargar_lote(p_lote)</code>. Avanza de lote y observa cómo crece el Vault, y qué le pasa a Ana.</p>
+  <div class="seg" role="radiogroup" aria-label="Lote de carga" id="loteseg">
+    <button type="button" role="radio" aria-checked="true" data-l="1">Lote 1 · 10 mar</button>
+    <button type="button" role="radio" aria-checked="false" data-l="2">Lote 2 · 2 jun</button>
+    <button type="button" role="radio" aria-checked="false" data-l="3">Lote 3 · 10 sep</button>
+  </div>
+  <div class="grid2 lotegrid">
+    <div>
+      <h4>Bitácora de conteos <small class="muted">(filas nuevas entre paréntesis)</small></h4>
+      <div class="tw"><table class="nw" id="loteTable"><thead><tr><th>Tabla</th><th>Filas</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div>
+      <div class="lotenote" id="lotenote" aria-live="polite"></div>
+      <h4>La historia de Ana en <code>sat_cliente_crm</code></h4>
+      <div class="tw"><table class="nw" id="anaTable"><thead><tr><th>load_date</th><th>ciudad</th><th>segmento</th></tr></thead><tbody></tbody></table></div>
+      <p class="small muted">Ningún dato se sobrescribió: cada fila es una versión.</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h4>El reenvío de V-3311</h4><p class="small">El archivo de junio trae 5 líneas de venta, entre ellas V-3311, ya cargada en marzo. <code>link_venta</code> pasó de 8 a 12 (4 nuevas) y <code>sat_venta_pos</code> también: el reenvío tenía el mismo <code>hash_diff</code>, así que no se insertó. La evidencia quedó en Bronze, que conserva V-3311 dos veces: una de <code>pos_ventas_20260310.csv</code> y otra de <code>pos_ventas_20260602.csv</code>.</p></div>
+    <div class="card"><h4>Sofía no cambió de versión</h4><p class="small">En septiembre el CRM corrigió «cali» a «Cali», pero <code>hash_diff</code> usa <code>upper()</code> y para el Vault no hubo cambio: no se guardó versión nueva. Es bueno (sin ruido por mayúsculas) y tiene un costo: la corrección no queda en el Raw Vault, así que la presentación correcta se resuelve en el Business Vault.</p></div>
+  </div>
+</section>
+
+<section id="t3-gold">
+  <div class="eyebrow">Parte 4 y 5</div>
+  <h2>Business Vault y Gold: la estrella vuelve, sin guardar datos</h2>
+  <p>Una vista del Business Vault aplica la regla de negocio (<code>initcap(trim(ciudad))</code>: «cali» → «Cali») sin tocar el Raw Vault. Gold reconstruye la estrella del Taller 2 con <strong>cuatro vistas</strong>; <code>dim_cliente</code> calcula el SCD tipo 2 con <code>LEAD</code>.</p>
+  <h3>gold.dim_cliente · el SCD tipo 2 calculado desde el Vault</h3>
+  <div class="tw"><table class="nw"><thead><tr><th>cliente_id</th><th>nombre</th><th>ciudad</th><th>segmento</th><th>fecha_inicio</th><th>fecha_fin</th><th>vigente</th></tr></thead><tbody>
+    <tr class="ana"><td>CLI-001</td><td>Ana Torres</td><td>Cali</td><td>Premium</td><td>2026-03-10</td><td>2026-06-01</td><td>f</td></tr>
+    <tr class="ana"><td>CLI-001</td><td>Ana Torres</td><td>Bogotá</td><td>Premium</td><td>2026-06-02</td><td>2026-09-09</td><td>f</td></tr>
+    <tr class="ana"><td>CLI-001</td><td>Ana Torres</td><td>Bogotá</td><td>Oro</td><td>2026-09-10</td><td>9999-12-31</td><td>t</td></tr>
+    <tr><td>CLI-002</td><td>Luis Mejía</td><td>Palmira</td><td>Estándar</td><td>2026-03-10</td><td>9999-12-31</td><td>t</td></tr>
+    <tr><td>CLI-003</td><td>Marta Gil</td><td>Jamundí</td><td>Estándar</td><td>2026-03-10</td><td>9999-12-31</td><td>t</td></tr>
+    <tr><td>CLI-004</td><td>Jorge Ruiz</td><td>Cali</td><td>Premium</td><td>2026-03-10</td><td>9999-12-31</td><td>t</td></tr>
+    <tr><td>CLI-005</td><td>Sofía Lara</td><td>Cali</td><td>Estándar</td><td>2026-03-10</td><td>9999-12-31</td><td>t</td></tr>
+    <tr><td>CLI-006</td><td>Pedro Díaz</td><td>Yumbo</td><td>Estándar</td><td>2026-06-02</td><td>9999-12-31</td><td>t</td></tr>
+  </tbody></table></div>
+  <p class="small muted"><code>gold.fact_ventas</code>: 15 líneas por $1.380.300. Todo Gold son vistas: si mañana cambia una regla, se recrea la vista y el Vault no se toca.</p>
+  <h3>El mismo total, dos verdades</h3>
+  <p>Ambos reportes suman $1.380.300. Cambia la pregunta: ¿dónde vivía el cliente <em>al comprar</em> o dónde vive <em>hoy</em>?</p>
+  <div class="seg" role="radiogroup" aria-label="Tipo de reporte" id="repseg">
+    <button type="button" role="radio" aria-checked="true" data-r="compra">Ciudad al comprar</button>
+    <button type="button" role="radio" aria-checked="false" data-r="actual">Ciudad actual</button>
+  </div>
+  <div class="bars" id="bars" aria-live="polite"></div>
+  <p class="callout" id="repnote"></p>
+  <details class="code"><summary>Ver la consulta de «ciudad al comprar»</summary>
+<pre><code>SELECT d.ciudad AS ciudad_al_comprar, count(*) AS lineas, SUM(f.monto) AS ventas
+FROM gold.fact_ventas f
+JOIN gold.dim_cliente d
+  ON d.cliente_id = f.cliente_id
+ AND f.fecha_venta BETWEEN d.fecha_inicio AND d.fecha_fin
+GROUP BY d.ciudad
+ORDER BY ventas DESC;</code></pre></details>
+</section>
+
+<section id="t3-audit">
+  <div class="eyebrow">Auditoría</div>
+  <h2>Preguntas que un modelo que sobrescribe no puede responder</h2>
+  <div class="grid2">
+    <div class="card"><h4>¿Dónde vivía Ana el 1 de julio?</h4><p>En <strong>Bogotá</strong>, segmento Premium, desde el 2 de junio. Basta con pedir la última versión de <code>sat_cliente_crm</code> con <code>load_date &lt;= '2026-07-01'</code>.</p></div>
+    <div class="card"><h4>¿Por qué V-4021 decía 5 unidades y ahora 4?</h4>
+      <div class="tw"><table class="nw"><thead><tr><th>Llegó el</th><th>Cant.</th><th>Monto</th><th>Archivo</th></tr></thead><tbody><tr><td>2026-06-02</td><td>5</td><td>20.500</td><td>pos_ventas_20260602.csv</td></tr><tr class="ana"><td>2026-09-10</td><td>4</td><td>16.400</td><td>pos_ventas_20260910.csv</td></tr></tbody></table></div></div>
+  </div>
+  <p>El reporte de ventas muestra la versión más reciente (4 unidades, $16.400), que es la que toma <code>gold.fact_ventas</code> con <code>DISTINCT ON … load_date DESC</code>. La anterior se conserva para explicar por qué un reporte de junio decía otra cifra. Todo funciona porque <strong>Bronze guarda <code>_archivo</code> y <code>_cargado</code></strong> y porque los satellites <strong>insertan una versión nueva en vez de hacer <code>UPDATE</code></strong>.</p>
+  <p class="small muted">Y si RetailNova llegara a millones de ventas, <code>gold.fact_ventas</code> se materializaría como tabla en formato columnar y se refrescaría después de cada lote; el Vault se quedaría por filas.</p>
+</section>
+
+<section id="t3-cierre">
+  <div class="eyebrow">Cierre del Taller 3</div>
+  <h2>Taller 2 frente a Taller 3 y la recomendación</h2>
+  <div class="vs">
+    <div><h3>Estrella del Taller 2</h3><p class="bignum">5 <small>tablas</small></p><ul class="small"><li>1 hecho + 4 dimensiones.</li><li>Solo recuerda la historia que se diseñó en <code>dim_cliente</code>.</li><li>Con SCD tipo 1 habría reescrito la ciudad de Ana.</li></ul></div>
+    <div><h3>Medallion + Vault del Taller 3</h3><p class="bignum">17 <small>objetos</small></p><ul class="small"><li>12 tablas físicas: 4 en Bronze, 3 hubs, 1 link y 4 satellites.</li><li>5 vistas: 1 del Business Vault y 4 de Gold.</li><li>Responde dónde vivía Ana, qué decía cada versión y de qué archivo salió cada cifra.</li></ul></div>
+  </div>
+  <div class="reco">
+    <h3>Recomendación para RetailNova (equipo de 4 personas)</h3>
+    <ol class="stages">
+      <li><strong>Adoptar Medallion ya.</strong> Es barato y da lo más valioso: un Bronze inmutable con archivo y fecha de cada carga, más una Gold dimensional con SCD tipo 2 para los reportes.</li>
+      <li><strong>Vault solo donde hay historia y auditoría</strong> (clientes y ventas). El Vault completo son 12 tablas que el equipo debe mantener.</li>
+      <li><strong>Un único procedimiento de carga repetible</strong>, como <code>silver.cargar_lote</code>.</li>
+      <li><strong>Crecer hacia el Vault completo</strong> cuando se sumen más fuentes (tienda en línea, nuevos sistemas) y los cambios y correcciones sean frecuentes.</li>
+    </ol>
+  </div>
+  <p class="callout">Es la misma lógica del Taller 1: no adoptar hoy lo que el equipo no puede sostener, pero dejar la base lista para el Año 2 y el Año 5.</p>
+</section>
+
+<section id="conclusiones" data-t="conc">
+  <div class="eyebrow">Conclusiones por taller</div>
+  <h2>Qué concluyó cada taller y cómo funciona</h2>
+  <p>Elige un taller: a la izquierda las conclusiones y a la derecha una gráfica que se puede explorar.</p>
+  <div role="tablist" aria-label="Conclusiones por taller"><button role="tab" aria-selected="true" data-tab="cc1">Taller 1 · Arquitectura</button><button role="tab" aria-selected="false" data-tab="cc2">Taller 2 · Modelo dimensional</button><button role="tab" aria-selected="false" data-tab="cc3">Taller 3 · Data Vault</button></div>
+
+  <div role="tabpanel" id="cc1" class="ccgrid">
+    <div class="ccl"><h3>La arquitectura correcta depende del momento</h3>
+      <ul>
+        <li><strong>Hoy · Data Warehouse (28).</strong> Casi todo es tabular y el equipo es de 4: BI confiable y gobierno pesan más.</li>
+        <li><strong>Año 2 · Lakehouse (28).</strong> Aparecen JSON, clics y sensores, y el ML: el warehouse cae en tipos de dato.</li>
+        <li><strong>Año 5 · Data Mesh (30).</strong> Con 200 personas y tres países, un equipo central es un cuello de botella.</li>
+        <li><strong>ETL vs ELT.</strong> Guardar primero y transformar después evita perder la próxima pregunta.</li>
+      </ul></div>
+    <div class="ccr"><h4>Puntaje total por arquitectura</h4>
+      <div class="chips" id="momchips" role="group" aria-label="Momento"><button type="button" class="chip on" data-m="hoy">Hoy</button><button type="button" class="chip" data-m="a2">Año 2</button><button type="button" class="chip" data-m="a5">Año 5</button></div>
+      <div class="hbars" id="momchart" aria-live="polite"></div>
+      <p class="small muted" id="momtext"></p></div>
+  </div>
+
+  <div role="tabpanel" id="cc2" class="ccgrid" hidden>
+    <div class="ccl"><h3>Un modelo simple que respondió las cuatro quejas</h3>
+      <ul>
+        <li><strong>Grano de línea de ticket.</strong> Se puede agregar a cualquier nivel; el total no se desagrega.</li>
+        <li><strong>Estrella hoy, copo de nieve en el Año 2.</strong> Simplicidad para BI con 3.000 productos; consistencia con 400.000.</li>
+        <li><strong>SCD tipo 2 en cliente.</strong> El pasado no cambia cuando alguien se muda.</li>
+        <li><strong>Cuidado con la suma.</strong> Precios, márgenes y distintos son no aditivos; el inventario es semi-aditivo.</li>
+      </ul></div>
+    <div class="ccr"><h4>Toca una queja y mira qué parte del modelo la resuelve</h4>
+      <div class="chips" id="qchips" role="group" aria-label="Queja">
+        <button type="button" class="chip on" data-q="rap">Reportes lentos</button><button type="button" class="chip" data-q="mud">Cliente que se muda</button><button type="button" class="chip" data-q="inv">Inventario sumado</button><button type="button" class="chip" data-q="mar">Marca y país</button></div>
+      <figure class="svgfig qfig"><svg viewBox="0 0 460 250" role="img" aria-label="Esquema estrella con la parte relevante resaltada" id="qsvg">
+        <g class="edge"><path d="M230 125 L90 50"/><path d="M230 125 L370 50"/><path d="M230 125 L90 200"/><path d="M230 125 L370 200"/></g>
+        <g data-p="fact"><rect class="node fact" x="165" y="95" width="130" height="60" rx="10"/><text class="t" x="230" y="122" text-anchor="middle">fact_ventas</text><text class="s" x="230" y="140" text-anchor="middle">cantidad · monto</text></g>
+        <g data-p="cliente"><rect class="node" x="20" y="30" width="140" height="40" rx="8"/><text class="t" x="90" y="55" text-anchor="middle">dim_cliente</text></g>
+        <g data-p="producto"><rect class="node" x="300" y="30" width="140" height="40" rx="8"/><text class="t" x="370" y="55" text-anchor="middle">dim_producto</text></g>
+        <g data-p="tienda"><rect class="node" x="20" y="180" width="140" height="40" rx="8"/><text class="t" x="90" y="205" text-anchor="middle">dim_tienda</text></g>
+        <g data-p="fecha"><rect class="node" x="300" y="180" width="140" height="40" rx="8"/><text class="t" x="370" y="205" text-anchor="middle">dim_fecha</text></g>
+      </svg></figure>
+      <p class="callout" id="qtext"></p></div>
+  </div>
+
+  <div role="tabpanel" id="cc3" class="ccgrid" hidden>
+    <div class="ccl"><h3>Medallion ya; Vault donde haya historia</h3>
+      <ul>
+        <li><strong>Bronze inmutable.</strong> Guarda el archivo y la fecha de cada carga: es la evidencia.</li>
+        <li><strong>Carga idempotente.</strong> <code>NOT EXISTS</code> y <code>hash_diff</code>: repetir un lote no duplica nada.</li>
+        <li><strong>Nada se sobrescribe.</strong> Ana tiene 3 versiones y V-4021 tiene 2; se puede auditar cada cifra.</li>
+        <li><strong>Gold son vistas.</strong> Si cambia una regla, se recrea la vista sin recargar datos.</li>
+        <li><strong>Costo:</strong> 17 objetos frente a 5 de la estrella; por eso, solo para clientes y ventas con un equipo de 4.</li>
+      </ul></div>
+    <div class="ccr"><h4>Cómo crece el Vault lote a lote (filas por tabla)</h4>
+      <div class="legend"><span><i class="l1"></i>Lote 1 · 10 mar</span><span><i class="l2"></i>Lote 2 · 2 jun</span><span><i class="l3"></i>Lote 3 · 10 sep</span></div>
+      <div class="gbars" id="vchart"></div>
+      <p class="small muted">Pasa el cursor o toca una barra para ver el valor. Los hubs casi no crecen; links y satellites sí, porque guardan relaciones y versiones.</p></div>
+  </div>
+</section>
+
 <section id="entregables">
   <div class="eyebrow">Entregables</div>
-  <h2>Documentos del taller</h2>
-  <ul>
-    <li><a href="Taller1_RetailNova_Resuelto.pdf">Taller resuelto en PDF</a> con las cuatro evidencias.</li>
-    <li>Diagramas interactivos: <a href="diagramas/d1-actual.html">RetailNova hoy: ETL nocturno hacia un DW</a> · <a href="diagramas/d2-recorrido-a.html">Recorrido A: quiebre de stock</a> · <a href="diagramas/d3-recorrido-b.html">Recorrido B: fallas de neveras</a> · <a href="diagramas/d4-recorrido-c.html">Recorrido C: opinión de la marca Nova</a> · <a href="diagramas/d5-etl-vs-elt.html">ETL frente a ELT</a> · <a href="diagramas/d6-anio2-hibrida.html">Año 2: lakehouse con ingesta híbrida</a> · <a href="diagramas/d7-anio5-mesh.html">Año 5: Data Mesh</a>.</li>
-  </ul>
-  <footer>RetailNova es una empresa ficticia creada para el curso. Diagramas generados con Archify.</footer>
+  <h2>Documentos de los talleres</h2>
+  <div class="grid4">
+    <div class="card"><h4>Taller 1 · Arquitectura</h4><p class="small muted">Fuentes, ciclo de vida, ETL vs ELT y matrices de decisión.</p><p><a href="Taller1_RetailNova_Resuelto.pdf">Taller 1 resuelto (PDF)</a></p></div>
+    <div class="card"><h4>Taller 2 · Modelo dimensional</h4><p class="small muted">Estrella, grano, copo de nieve, SCD y aditividad.</p><p><a href="Taller2_RetailNova_Resuelto.pdf">Taller 2 resuelto (PDF)</a></p></div>
+    <div class="card"><h4>Taller 3 · Data Vault y Medallion</h4><p class="small muted">Bronze, Raw Vault, Gold, bitácora y respuestas.</p><p><a href="Taller3_RetailNova_DataVault_Resuelto.pdf">Taller 3 resuelto (PDF)</a></p></div>
+  </div>
+  <h3>Diagramas interactivos del Taller 1</h3>
+  <p><a href="diagramas/d1-actual.html">RetailNova hoy: ETL nocturno hacia un DW</a> · <a href="diagramas/d2-recorrido-a.html">Recorrido A: quiebre de stock</a> · <a href="diagramas/d3-recorrido-b.html">Recorrido B: fallas de neveras</a> · <a href="diagramas/d4-recorrido-c.html">Recorrido C: opinión de la marca Nova</a> · <a href="diagramas/d5-etl-vs-elt.html">ETL frente a ELT</a> · <a href="diagramas/d6-anio2-hibrida.html">Año 2: lakehouse con ingesta híbrida</a> · <a href="diagramas/d7-anio5-mesh.html">Año 5: Data Mesh</a>.</p>
+  <footer>RetailNova es una empresa ficticia creada para el curso. Diagramas del Taller 1 generados con Archify; los esquemas de los talleres 2 y 3 son SVG propios de esta página.</footer>
 </section>
 </main>
 </div>
@@ -250,15 +1163,182 @@ footer{color:var(--muted);font-size:13px;margin-top:30px}
  var side=document.getElementById('side'), mb=document.getElementById('menubtn');
  mb.addEventListener('click',function(){var o=side.classList.toggle('open'); mb.setAttribute('aria-expanded',o);});
  side.addEventListener('click',function(ev){if(ev.target.tagName==='A') side.classList.remove('open');});
- document.querySelectorAll('[role=tab]').forEach(function(b){b.addEventListener('click',function(){
-   document.querySelectorAll('[role=tab]').forEach(function(x){x.setAttribute('aria-selected',x===b)});
-   document.querySelectorAll('[role=tabpanel]').forEach(function(p){p.hidden=p.id!==b.dataset.tab});
- })});
+ document.querySelectorAll('[role=tablist]').forEach(function(tl){var tabs=[].slice.call(tl.querySelectorAll('[role=tab]')),box=tl.parentNode;
+   tabs.forEach(function(b){b.addEventListener('click',function(){
+     tabs.forEach(function(x){x.setAttribute('aria-selected',x===b)});
+     [].forEach.call(box.querySelectorAll(':scope > [role=tabpanel]'),function(p){p.hidden=p.id!==b.dataset.tab});
+   })});
+ });
  var links=[].slice.call(document.querySelectorAll('nav.side a'));
  if('IntersectionObserver' in window){
   var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id)})}})},{rootMargin:'-30% 0px -60% 0px'});
-  document.querySelectorAll('main section').forEach(function(s){io.observe(s)});
+  document.querySelectorAll('main section, main .part').forEach(function(s){io.observe(s)});
  }
+
+ /* ===== Talleres 2 y 3: interacciones ===== */
+ function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+ function $(id){return document.getElementById(id)}
+ function seg(el,cb){ if(!el) return; var bs=[].slice.call(el.querySelectorAll('button'));
+  bs.forEach(function(b){b.addEventListener('click',function(){bs.forEach(function(x){x.setAttribute('aria-checked',x===b)});cb(b);})}); }
+
+ // Filtro de las 18 tarjetas
+ var cf=$('cardfilter'); if(cf){ cf.addEventListener('click',function(ev){var b=ev.target.closest('button'); if(!b) return;
+   [].forEach.call(cf.querySelectorAll('.chip'),function(c){c.classList.toggle('on',c===b)});
+   [].forEach.call(document.querySelectorAll('#cards18 .tcard'),function(t){t.classList.toggle('dim',b.dataset.f!=='all'&&t.dataset.c!==b.dataset.f)});
+ }); }
+
+ // SCD tipo 1 / tipo 2
+ var SCD={
+  1:{rows:[['1','CLI-001','Ana Torres','Jamundí','2026-05-04','9999-12-31','Sí',0],['2','CLI-002','Luis Mejía','Palmira','2026-05-04','9999-12-31','Sí',0],['3','CLI-003','Marta Gil','Jamundí','2026-05-04','9999-12-31','Sí',0]],
+     res:[['Cali',0],['Jamundí',176200],['Palmira',43400]],
+     note:'Con tipo 1, Ana queda registrada en Jamundí y sus tres compras de Cali ($129.100) desaparecen de Cali: el reporte de mayo se reescribe solo.'},
+  2:{rows:[['1','CLI-001','Ana Torres','Cali','2026-05-04','2026-05-19','No',1],['2','CLI-002','Luis Mejía','Palmira','2026-05-04','9999-12-31','Sí',0],['3','CLI-003','Marta Gil','Jamundí','2026-05-04','9999-12-31','Sí',0],['4','CLI-001','Ana Torres','Jamundí','2026-05-20','9999-12-31','Sí',2]],
+     res:[['Cali',129100],['Jamundí',47100],['Palmira',43400]],
+     note:'Con tipo 2, Ana tiene dos filas (keys 1 y 4). Su compra del 25 de mayo ($18.900) se enlaza con la versión vigente (key 4) y las de Cali siguen en Cali.'}};
+ function drawSCD(t){var d=SCD[t],tb=document.querySelector('#scdtable tbody'),rb=document.querySelector('#scdres tbody'); if(!tb) return;
+  tb.innerHTML=d.rows.map(function(r){return '<tr class="'+(r[7]===1?'old':r[7]===2?'new ana':'')+'">'+r.slice(0,7).map(function(c){return '<td>'+c+'</td>'}).join('')+'</tr>'}).join('');
+  rb.innerHTML=d.res.map(function(r){return '<tr><td>'+r[0]+'</td><td>$'+fmt(r[1])+'</td></tr>'}).join('')+'<tr class="totrow"><th scope="row">Total</th><td>$219.600</td></tr>';
+  $('scdnote').textContent=d.note;}
+ seg($('scdseg'),function(b){drawSCD(b.dataset.scd)}); drawSCD(2);
+
+ // Lotes del Taller 3
+ var TB=['hub_cliente','hub_producto','hub_tienda','link_venta','sat_cliente_crm','sat_producto_erp','sat_tienda_erp','sat_venta_pos'];
+ var CN={1:[5,6,4,8,5,6,4,8],2:[6,6,4,12,7,7,4,12],3:[6,6,4,15,8,7,4,16]};
+ var NOTES={
+  1:'<b>10 de marzo · primera carga.</b> <code>COPY 5, 6, 4 y 8</code> en Bronze y todo es nuevo. Ana vive en Cali; Sofía llega con «cali» en minúscula y así se queda.',
+  2:'<b>2 de junio · sin archivo de tiendas.</b> <code>COPY 6, 6 y 5</code>. <ul><li>Ana se muda a Bogotá: nueva versión en su satellite.</li><li>Entra Pedro Díaz (CLI-006, Yumbo).</li><li>V-3311 se reenvía y <em>no</em> duplica nada.</li></ul>',
+  3:'<b>10 de septiembre.</b> <code>COPY 6 y 4</code>. <ul><li>Ana sube de Premium a Oro.</li><li>El POS corrige V-4021 de 5 a 4 unidades: nueva versión del satellite, mismo link.</li><li>Sofía pasa de «cali» a «Cali» y no genera versión (hash_diff con <code>upper</code>).</li></ul>'};
+ var ANA=[['2026-03-10','Cali','Premium'],['2026-06-02','Bogotá','Premium'],['2026-09-10','Bogotá','Oro']];
+ function drawLote(l){var tb=document.querySelector('#loteTable tbody'); if(!tb) return; var prev=CN[l-1]||[0,0,0,0,0,0,0,0];
+  tb.innerHTML=TB.map(function(n,i){var d=CN[l][i]-prev[i]; return '<tr><td><code>'+n+'</code></td><td><b>'+CN[l][i]+'</b>'+(l>1&&d>0?'<span class="delta">+'+d+'</span>':'')+'</td></tr>'}).join('');
+  $('lotenote').innerHTML=NOTES[l];
+  document.querySelector('#anaTable tbody').innerHTML=ANA.slice(0,l).map(function(r,i){return '<tr class="'+(i===l-1&&l>1?'new':'')+'">'+r.map(function(c){return '<td>'+c+'</td>'}).join('')+'</tr>'}).join('');}
+ seg($('loteseg'),function(b){drawLote(+b.dataset.l)}); drawLote(1);
+
+ // Reportes de Gold
+ var REP={compra:[['Cali',793300,6],['Bogotá',434000,2],['Palmira',97000,4],['Jamundí',37100,2],['Yumbo',18900,1]],
+          actual:[['Bogotá',1113000,4],['Cali',114300,4],['Palmira',97000,4],['Jamundí',37100,2],['Yumbo',18900,1]]};
+ var RN={compra:'Correcto para mercadeo: respeta la historia con SCD tipo 2. Cali conserva las compras de marzo de Ana ($679.000: V-3311 por $189.000 y V-3312 por $490.000).',
+         actual:'Sirve para ver cómo está hoy la base de clientes, pero reescribe el pasado: las compras de marzo de Ana pasan de Cali a Bogotá (Cali −$679.000; Bogotá +$679.000).'};
+ function drawRep(k){var el=$('bars'); if(!el) return; var max=1113000;
+  el.innerHTML=REP[k].map(function(r,i){return '<div class="bar'+((k==='compra'&&r[0]==='Cali')||(k==='actual'&&r[0]==='Bogotá')?' hot':'')+'"><span>'+r[0]+'</span><div class="track"><div class="fill" style="width:0" data-w="'+(r[1]/max*100).toFixed(1)+'"></div></div><span class="v">$'+fmt(r[1])+' · '+r[2]+' líneas</span></div>'}).join('');
+  requestAnimationFrame(function(){requestAnimationFrame(function(){[].forEach.call(el.querySelectorAll('.fill'),function(f){f.style.width=f.dataset.w+'%'})})});
+  $('repnote').textContent=RN[k];}
+ seg($('repseg'),function(b){drawRep(b.dataset.r)}); drawRep('compra');
+
+ // Raw Vault interactivo
+ var VK={hub_cliente:'Hub de clientes: 5 filas en el lote 1 y 6 desde junio (entra CLI-006). Guarda solo CLI-00X y su hash; el nombre y la ciudad viven en el satellite.',
+  hub_producto:'Hub de productos: 6 claves de negocio (CAF-500, LEC-1L, DET-2K, ARR-NOVA…). Su catálogo no creció en los otros lotes.',
+  hub_tienda:'Hub de tiendas: 4 claves (TN-01, TS-02, PA-03, JA-04), cargadas solo en el lote 1.',
+  link_venta:'Link de ventas: une cliente, producto y tienda con el ticket. 8 → 12 → 15 filas. Cada fila es una línea de ticket, el grano del Taller 2.',
+  sat_cliente_crm:'Satellite de clientes: 5 → 7 → 8 versiones. Aquí está la historia de Ana: Cali, Bogotá y luego Oro.',
+  sat_producto_erp:'Satellite de productos: nombre, categoría, marca y precio (aquí ya es NUMERIC, no TEXT).',
+  sat_tienda_erp:'Satellite de tiendas: nombre, ciudad y región. 4 filas: no hubo cambios.',
+  sat_venta_pos:'Satellite de ventas: 8 → 12 → 16 filas. V-4021 tiene dos versiones (5 y luego 4 unidades).'};
+ var vs=$('vaultsvg'); if(vs){ var sel=function(g){[].forEach.call(vs.querySelectorAll('.pick'),function(x){x.classList.toggle('sel',x===g)});
+   $('vaultcap').innerHTML='<b>'+g.dataset.k+'</b> · '+VK[g.dataset.k];};
+  [].forEach.call(vs.querySelectorAll('.pick'),function(g){g.addEventListener('click',function(){sel(g)});g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();sel(g)}})}); }
+
+ // Inventario
+ // (valores fijos: 120, 95, 80)
+
+ // Aparición suave y contadores
+ var rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ if('IntersectionObserver' in window && !rm){
+  var co=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting) return; co.unobserve(e.target); var el=e.target,to=+el.dataset.count,t0=null,cop=el.dataset.fmt==='cop';
+    function step(ts){t0=t0||ts;var p=Math.min((ts-t0)/900,1);var v=Math.round(to*(1-Math.pow(1-p,3)));el.textContent=cop?fmt(v):v;if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)})},{threshold:.6});
+  [].forEach.call(document.querySelectorAll('[data-count]'),function(k){co.observe(k)});
+ }
+
+ /* ===== Story time, conclusiones y menú dinámico ===== */
+ // Cuadritos de ETL vs ELT (escena 4)
+ (function(){var g=$('etlsq'); if(!g) return;
+  var st=['ok','ok','ok','bad','bad','bad','ok','ok','bad','bad'], lb=['1001','1002','1003','1003','1004','1005','1006','1007','1008','1009'], h='';
+  [0,290].forEach(function(ox,lane){st.forEach(function(s,i){
+   var x=ox+10+(i%5)*50,y=40+Math.floor(i/5)*62, cls=s==='ok'?'ok':(lane===0?'bad':'warn'), mk=s==='ok'?'✓':(lane===0?'✕':'•');
+   h+='<g class="a" style="--d:'+(0.2+i*0.12+(lane?0.9:0)).toFixed(2)+'s"><rect class="sq '+cls+'" x="'+x+'" y="'+y+'" width="44" height="46" rx="6"/><text class="s" x="'+(x+22)+'" y="'+(y+19)+'" text-anchor="middle">'+lb[i]+'</text><text class="k" x="'+(x+22)+'" y="'+(y+37)+'" text-anchor="middle">'+mk+'</text></g>';});});
+  g.innerHTML=h;})();
+
+ // Gráfica de decisión (escena 5)
+ (function(){var el=$('storyChart'); if(!el) return;
+  var G=[['Hoy',[28,23,26,19]],['Año 2',[22,24,28,22]],['Año 5',[17,21,28,30]]],N=['Warehouse','Lake','Lakehouse','Mesh'],C=['#64748b','#2563eb','#0f766e','#d97706'];
+  var base=270,s='<svg viewBox="0 0 560 330" role="img" aria-label="Puntaje de cada arquitectura en tres momentos" style="display:block;width:100%;height:auto"><g class="edge"><path d="M30 '+base+' L540 '+base+'"/></g>';
+  G.forEach(function(g,gi){var x0=50+gi*170,win=g[1].indexOf(Math.max.apply(null,g[1]));
+   g[1].forEach(function(v,i){var h=v/32*215,x=x0+i*32,y=base-h;
+    s+='<g class="a" style="--d:'+(gi*.5+i*.12).toFixed(2)+'s"><rect x="'+x+'" y="'+y+'" width="28" height="'+h+'" rx="4" fill="'+C[i]+'" opacity="'+(i===win?1:.4)+'"/><text class="k" x="'+(x+14)+'" y="'+(y-5)+'" text-anchor="middle"'+(i===win?' style="font-weight:800;opacity:1"':'')+'>'+v+'</text></g>';});
+   s+='<text class="t" x="'+(x0+60)+'" y="292" text-anchor="middle">'+g[0]+'</text><text class="s" x="'+(x0+60)+'" y="310" text-anchor="middle">gana '+N[win]+'</text>';});
+  el.innerHTML=s+'</svg><div class="lgd">'+N.map(function(n,i){return '<span><i style="background:'+C[i]+'"></i>'+n+'</span>'}).join('')+'</div>';})();
+
+ // Conclusiones T1: barras por momento
+ (function(){var box=$('momchart'); if(!box) return;
+  var D={hoy:[28,23,26,19],a2:[22,24,28,22],a5:[17,21,28,30]},N=['Data Warehouse','Data Lake','Lakehouse','Data Mesh'];
+  var TX={hoy:'12 tiendas, solo venta física y 4 personas en datos: el warehouse gana en BI, gobierno y tamaño de equipo.',a2:'Tienda en línea, clics, sensores y recomendaciones: el lakehouse junta BI confiable y ML en un solo almacenamiento.',a5:'Tres países y 200 personas en tecnología: los dominios ya pueden ser dueños de su dato y el mesh gana por poco.'};
+  function draw(m){var v=D[m],mx=Math.max.apply(null,v);box.innerHTML=v.map(function(x,i){return '<div class="hrow'+(x===mx?' win':'')+'"><span>'+N[i]+'</span><div class="track"><div class="fill" style="width:0" data-w="'+(x/32*100)+'"></div></div><b>'+x+'</b></div>'}).join('');
+   requestAnimationFrame(function(){requestAnimationFrame(function(){[].forEach.call(box.querySelectorAll('.fill'),function(f){f.style.width=f.dataset.w+'%'})})});$('momtext').textContent=TX[m];}
+  var mc=$('momchips'); mc.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b) return;[].forEach.call(mc.children,function(c){c.classList.toggle('on',c===b)});draw(b.dataset.m)}); draw('hoy');})();
+
+ // Conclusiones T2: quejas -> piezas del modelo
+ (function(){var svg=$('qsvg'); if(!svg) return;
+  var Q={rap:{p:['fact','cliente','producto','tienda','fecha'],t:'Estrella con grano único y claves subrogadas: joins sencillos y siempre iguales, sin repetir texto en 40 columnas y con las métricas definidas una sola vez.'},
+   mud:{p:['cliente'],t:'SCD tipo 2 en dim_cliente: Ana tiene dos filas con fechas de vigencia y cada venta queda ligada a la ciudad que tenía el día de la compra.'},
+   inv:{p:['fact'],t:'El inventario es una métrica semi-aditiva: se suma entre tiendas y productos, nunca en el tiempo. Se reporta el cierre o el promedio (80 o 98, no 295), idealmente en un hecho de inventario aparte.'},
+   mar:{p:['producto'],t:'Marca y país viven en dim_producto (estrella) o en dim_marca y dim_pais (copo de nieve) cuando el catálogo crece a 400.000 productos.'}};
+  function draw(k){[].forEach.call(svg.querySelectorAll('g[data-p]'),function(g){var on=Q[k].p.indexOf(g.dataset.p)>-1;g.classList.toggle('dim',!on);g.classList.toggle('lit',on&&Q[k].p.length<5)});$('qtext').textContent=Q[k].t;}
+  var qc=$('qchips'); qc.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b) return;[].forEach.call(qc.children,function(c){c.classList.toggle('on',c===b)});draw(b.dataset.q)}); draw('rap');})();
+
+ // Conclusiones T3: crecimiento del Vault
+ (function(){var box=$('vchart'); if(!box) return; var col=['#94a3b8','#2563eb','#0f766e'];
+  box.innerHTML=TB.map(function(n,i){return '<div class="grow"><code>'+n+'</code><div>'+[1,2,3].map(function(l){var v=CN[l][i];return '<div class="gb" title="'+n+' · lote '+l+': '+v+' filas"><i style="width:'+(v/16*100)+'%;background:'+col[l-1]+'"></i><span>'+v+'</span></div>'}).join('')+'</div></div>'}).join('');})();
+
+ // Story time
+ var story=$('story');
+ if(story){ story.classList.add('js');
+  var steps=[].slice.call(story.querySelectorAll('.sstep')),dl=$('sdots'),cur=0,prev=$('sprev'),next=$('snext'),dots=[];
+  steps.forEach(function(s,i){var li=document.createElement('li'),b=document.createElement('button');b.type='button';b.textContent=i+1;b.dataset.ch=s.dataset.ch;b.title=s.dataset.label;b.setAttribute('aria-label','Escena '+(i+1)+': '+s.dataset.label);b.addEventListener('click',function(){go(i)});li.appendChild(b);dl.appendChild(li);dots.push(b)});
+  function go(i){cur=Math.max(0,Math.min(steps.length-1,i));
+   steps.forEach(function(s,k){s.classList.toggle('on',k===cur)});
+   dots.forEach(function(d,k){if(k===cur)d.setAttribute('aria-current','step');else d.removeAttribute('aria-current');d.classList.toggle('done',k<cur)});
+   $('scount').textContent='Escena '+(cur+1)+' de '+steps.length+' · '+steps[cur].dataset.label;
+   $('sbar').style.width=((cur+1)/steps.length*100)+'%';
+   prev.disabled=cur===0; next.textContent=cur===steps.length-1?'Ver las conclusiones ↓':'Siguiente →';}
+  prev.addEventListener('click',function(){go(cur-1)});
+  next.addEventListener('click',function(){if(cur===steps.length-1){setFocus(document.body.dataset.focus?'conc':'all');var c=$('conclusiones');if(c)c.scrollIntoView({behavior:rm?'auto':'smooth'});}else go(cur+1)});
+  story.addEventListener('keydown',function(e){if(e.key==='ArrowRight'){e.preventDefault();go(cur+1)}else if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1)}});
+  go(0);}
+
+ // Menú dinámico: grupos, enfoque por taller, progreso
+ var main=document.querySelector('main'),ORD=['story','t1','t2','t3','conc'],curT='intro';
+ [].forEach.call(main.children,function(el){var id=el.id;
+  if(id==='historia')curT='story';else if(id==='t1')curT='t1';else if(id==='t2')curT='t2';else if(id==='t3')curT='t3';else if(id==='conclusiones')curT='conc';
+  el.dataset.t=(id==='hilo'||id==='inicio')?'intro':curT;});
+ var fnav=document.createElement('div');fnav.className='fnav';fnav.innerHTML='<button type="button" class="btn" id="fprev"></button><button type="button" class="btn primary" id="fnext"></button>';main.appendChild(fnav);
+ var NM={story:'Historia',t1:'Taller 1',t2:'Taller 2',t3:'Taller 3',conc:'Cierre'};
+ var groups=[].slice.call(document.querySelectorAll('.ngrp')),fchips=[].slice.call(document.querySelectorAll('.fchip'));
+ function openGroup(g,only){groups.forEach(function(x){var o=x.dataset.g===g||(!only&&x.classList.contains('open')&&x.dataset.g!==g&&false);x.classList.toggle('open',x.dataset.g===g);x.querySelector('.ghead').setAttribute('aria-expanded',x.dataset.g===g)})}
+ function setFocus(f,keepScroll){
+  if(f==='all'||!f){document.body.removeAttribute('data-focus')}else{document.body.setAttribute('data-focus',f)}
+  fchips.forEach(function(c){c.classList.toggle('on',c.dataset.f===(f||'all'))});
+  var i=ORD.indexOf(f),p=ORD[i-1],n=ORD[i+1],fp=$('fprev'),fn=$('fnext');
+  fp.style.visibility=p?'visible':'hidden';fn.style.visibility=n?'visible':'hidden';
+  if(p){fp.textContent='← '+NM[p];fp.dataset.f=p}if(n){fn.textContent=NM[n]+' →';fn.dataset.f=n}
+  if(f&&f!=='all')openGroup(f);
+  if(!keepScroll)window.scrollTo({top:0});}
+ fchips.forEach(function(c){c.addEventListener('click',function(){setFocus(c.dataset.f)})});
+ fnav.addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.f)setFocus(b.dataset.f)});
+ groups.forEach(function(g){g.querySelector('.ghead').addEventListener('click',function(){var o=!g.classList.contains('open');g.classList.toggle('open',o);this.setAttribute('aria-expanded',o)})});
+ document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(!a||a.getAttribute('href').length<2)return;
+  var t=document.getElementById(a.getAttribute('href').slice(1));if(!t)return;var sec=t.closest('main>[data-t]'),f=document.body.dataset.focus;
+  if(sec&&f&&sec.dataset.t!==f)setFocus(sec.dataset.t==='intro'?'all':sec.dataset.t,true);});
+
+ // Barra de lectura, progreso por grupo y grupo activo
+ var topbar=document.createElement('div');topbar.id='topbar';document.body.appendChild(topbar);var tick=false,lastG='';
+ function update(){tick=false;var de=document.documentElement,max=de.scrollHeight-innerHeight;topbar.style.width=(max>0?Math.min(100,scrollY/max*100):0)+'%';
+  var vis=[].slice.call(main.children).filter(function(el){return el.dataset.t&&el.offsetParent!==null&&el!==fnav});
+  groups.forEach(function(g){var els=vis.filter(function(el){return el.dataset.t===g.dataset.g});if(!els.length)return;
+   var a=els[0].getBoundingClientRect().top+scrollY,b=els[els.length-1].getBoundingClientRect().bottom+scrollY,p=Math.max(0,Math.min(1,(scrollY+innerHeight*.6-a)/(b-a)));g.querySelector('.gp').style.setProperty('--p',(p*100).toFixed(0)+'%');});
+  var act=null;vis.forEach(function(el){if(el.getBoundingClientRect().top<=innerHeight*.35)act=el});
+  if(act&&act.dataset.t!==lastG){lastG=act.dataset.t;openGroup(lastG);}}
+ window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(update)}},{passive:true});window.addEventListener('resize',update);update();
 })();
 </script>
 </body>
